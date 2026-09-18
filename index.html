@@ -694,18 +694,51 @@ img.cart-thumb{object-fit:cover;}
 #urunFav[aria-pressed="true"]{border-color:var(--rose);color:var(--accent);}
 
 /* ── Arama çubuğu ───────────────────────────────────────────────── */
-.search{border-top:1px solid var(--line);background:var(--ground);}
-.search-in{display:flex;align-items:center;gap:.7rem;padding-block:.65rem;margin:0;}
-.search-ico{width:20px;height:20px;flex:none;stroke:var(--ink-mute);fill:none;stroke-width:1.25;}
-.search input{
-  flex:1;min-width:0;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);
-  padding:.7rem 1rem;font-family:inherit;font-size:var(--step-0);color:var(--ink);
+.search{
+  border-top:1px solid var(--line);
+  background:linear-gradient(180deg,var(--ground),var(--ground-2));
+  animation:search-in .28s cubic-bezier(.4,0,.2,1);
 }
-.search input::placeholder{color:var(--ink-mute);}
-.search input:focus{outline:none;border-color:var(--accent);}
+@keyframes search-in{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+.search-in{display:flex;flex-direction:column;align-items:center;gap:.55rem;padding-block:1rem 1.1rem;margin:0;}
+.search-box{
+  position:relative;width:min(640px,100%);display:flex;align-items:center;
+  background:var(--surface);border:1px solid var(--line-2);border-radius:100px;
+  padding:.3rem .4rem .3rem 1.2rem;
+  box-shadow:0 10px 30px rgba(29,23,25,.07),0 0 0 1px rgba(255,255,255,.9);
+  transition:border-color .25s,box-shadow .25s;
+}
+.search-box:focus-within{
+  border-color:var(--rose);
+  box-shadow:0 12px 34px rgba(217,138,146,.22),0 0 0 4px var(--glow);
+}
+.search-ico{width:18px;height:18px;flex:none;stroke:var(--ink-mute);fill:none;stroke-width:1.4;margin-right:.75rem;transition:stroke .25s;}
+.search-box:focus-within .search-ico{stroke:var(--accent);}
+.search input{
+  flex:1;min-width:0;background:none;border:0;padding:.7rem 0;
+  font-family:inherit;font-size:var(--step-0);font-weight:400;color:var(--ink);
+}
+.search input::placeholder{color:var(--ink-mute);font-weight:300;}
+.search input:focus{outline:none;}
 .search input::-webkit-search-cancel-button{-webkit-appearance:none;}
-.search-hint{font-size:var(--step--2);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);white-space:nowrap;}
-@media (max-width:520px){.search-hint{display:none;}}
+.search-hint{
+  flex:none;margin-inline:.5rem;padding:.3rem .7rem;border-radius:100px;
+  background:var(--surface-2);color:var(--accent);
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+}
+.search-hint:empty{display:none;}
+.search-close{
+  flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  color:var(--ink-mute);transition:color .2s,background .2s;
+}
+.search-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.search-close:hover{color:var(--accent);background:var(--surface-2);}
+.search-tip{font-size:.66rem;letter-spacing:.1em;color:var(--ink-mute);text-transform:uppercase;}
+@media (max-width:520px){
+  .search-hint{display:none;}
+  .search-tip{display:none;}
+  .search-in{padding-block:.75rem;}
+}
 
 /* ── Favori kalbi ───────────────────────────────────────────────── */
 .fav{
@@ -719,6 +752,12 @@ img.cart-thumb{object-fit:cover;}
 .fav[aria-pressed="true"]{border-color:var(--rose);}
 .fav[aria-pressed="true"] svg{fill:var(--rose);stroke:var(--rose-hi);}
 .fav.pop svg{animation:fav-pop .35s ease;}
+/* Dar kartta rozet ile kalp çakışmasın */
+@media (max-width:520px){
+  .fav{width:30px;height:30px;top:.45rem;right:.45rem;}
+  .fav svg{width:15px;height:15px;}
+  .tag{font-size:.56rem;letter-spacing:.12em;padding:.22rem .45rem;max-width:calc(100% - 3.4rem);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+}
 @keyframes fav-pop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 
 /* ── Sepette adet ───────────────────────────────────────────────── */
@@ -856,12 +895,15 @@ img.cart-thumb{object-fit:cover;}
   <!-- Arama çubuğu: büyütece basınca başlığın altında açılır -->
   <div class="search" id="searchBar" hidden>
     <form class="wrap search-in" id="searchForm" role="search">
-      <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input type="search" id="searchInput" placeholder="Ürün, kategori ara… (örn. dantel, sütyen)" aria-label="Ürün ara" autocomplete="off">
-      <span class="search-hint" id="searchHint"></span>
-      <button class="icon-btn" type="button" id="searchClose" aria-label="Aramayı kapat">
-        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
+      <div class="search-box">
+        <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="searchInput" placeholder="Ne arıyorsun? dantel, sütyen, gecelik…" aria-label="Ürün ara" autocomplete="off">
+        <span class="search-hint" id="searchHint"></span>
+        <button class="search-close" type="button" id="searchClose" aria-label="Aramayı kapat">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <span class="search-tip">Yazdıkça sonuçlar aşağıda açılır · kapatmak için Esc</span>
     </form>
   </div>
 </header>
@@ -1761,6 +1803,14 @@ img.cart-thumb{object-fit:cover;}
     katSec.hidden = false;
   }
 
+  /* Sonuç alanına kaydır — yapışkan başlık (arama çubuğu açıkken daha
+     yüksek) sonuç başlığını örtmesin diye başlık yüksekliği kadar pay bırakır */
+  function alanaKaydir(){
+    var bas = document.getElementById('head').getBoundingClientRect().height;
+    var y = katSec.getBoundingClientRect().top + window.scrollY - bas - 14;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  }
+
   function ciplerSifirla(tumu){
     chips.querySelectorAll('.chip').forEach(function(c){ c.setAttribute('aria-pressed','false'); });
     if (tumu) chips.querySelector('.chip[data-filter="all"]').setAttribute('aria-pressed','true');
@@ -1772,7 +1822,7 @@ img.cart-thumb{object-fit:cover;}
     var kaydir = katSec.hidden || katMode !== 'kategori';
     katMode = 'kategori';
     sonucGoster(liste, 'Seçtiğin kategori', label, 'Bu kategoride şimdilik ürün yok.');
-    if (kaydir) katSec.scrollIntoView({ block:'start' });
+    if (kaydir) alanaKaydir();
   }
 
   function kategoriKapat(scroll){
@@ -1791,7 +1841,7 @@ img.cart-thumb{object-fit:cover;}
     ciplerSifirla(false);
     sonucGoster(liste, 'Favoriler', 'Beğendiklerin',
       'Henüz favorin yok. Kartların köşesindeki kalbe dokunarak beğendiklerini burada topla.');
-    if (kaydir) katSec.scrollIntoView({ block:'start' });
+    if (kaydir) alanaKaydir();
   }
 
   function favoriGuncelle(){
@@ -1880,7 +1930,7 @@ img.cart-thumb{object-fit:cover;}
     sonucGoster(liste, 'Arama sonuçları', '"' + q.trim() + '"',
       'Aramaya uyan ürün bulunamadı. Başka bir kelime dene.');
     searchHint.textContent = liste.length ? liste.length + ' sonuç' : 'sonuç yok';
-    if (kaydir && ilkAcilis) katSec.scrollIntoView({ block:'start' });
+    if (kaydir && ilkAcilis) alanaKaydir();
   }
 
   searchBtn.addEventListener('click', function(){
