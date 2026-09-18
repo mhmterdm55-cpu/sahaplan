@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beden Rehberi · Lure İç Giyim</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Jost:wght@200;300;400;500;600&display=swap');
+
+:root{
+  --ground:#FFFFFF; --ground-2:#FBF8F8; --surface:#FFFFFF; --surface-2:#F5F1F1;
+  --ink:#1D1719; --ink-soft:#584D4F; --ink-mute:#8B7D7F;
+  --line:#DED3D5; --line-2:#C3B3B7;
+  --rose:#D98A92; --rose-hi:#C9757F; --accent:#8C2F39; --rose-ink:#2A1013;
+  --step--2:.688rem; --step--1:.8rem; --step-0:.95rem; --step-1:1.15rem;
+  --step-2:1.5rem; --step-3:clamp(1.8rem,3vw,2.5rem);
+  --pad:clamp(1.15rem,4vw,3rem); --max:1080px; --r:2px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:'Jost','Helvetica Neue',Arial,sans-serif;font-weight:300;
+  font-size:var(--step-0);line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:'Bodoni Moda','Didot',serif;font-weight:400;line-height:1.1;margin:0;text-wrap:balance;}
+p{margin:0;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--pad);}
+.eyebrow{font-size:var(--step--2);letter-spacing:.28em;text-transform:uppercase;color:var(--ink-mute);}
+
+.head{
+  position:sticky;top:0;z-index:20;
+  background:color-mix(in srgb,var(--ground) 90%,transparent);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.head-in{display:flex;align-items:center;gap:1rem;padding-block:1rem;}
+.brand{font-family:'Bodoni Moda',serif;font-size:1.35rem;letter-spacing:.32em;text-indent:.32em;}
+.head .btn{margin-left:auto;}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.8rem 1.6rem;border-radius:var(--r);
+  font-size:var(--step--1);letter-spacing:.16em;text-transform:uppercase;font-weight:500;
+  transition:background .25s,color .25s,border-color .25s;
+}
+.btn-primary{background:var(--rose);color:var(--rose-ink);}
+.btn-primary:hover{background:var(--rose-hi);}
+.btn-ghost{border:1px solid var(--line-2);color:var(--ink-soft);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+.hero{padding-block:clamp(2.5rem,6vw,4rem) clamp(1.5rem,4vw,2.5rem);border-bottom:1px solid var(--line);}
+.hero h1{font-size:var(--step-3);margin-block:.6rem .8rem;}
+.hero p{color:var(--ink-soft);max-width:52ch;}
+
+section{padding-block:clamp(2.2rem,5vw,3.5rem);}
+section + section{border-top:1px solid var(--line);}
+.sec-h{margin-bottom:1.6rem;}
+.sec-h h2{font-size:var(--step-2);margin-top:.5rem;}
+.sec-h p{color:var(--ink-mute);font-size:var(--step--1);margin-top:.5rem;max-width:58ch;}
+
+/* Hesaplayıcı */
+.hesap{display:grid;grid-template-columns:1fr 340px;gap:clamp(1.5rem,4vw,3rem);align-items:start;}
+@media (max-width:860px){.hesap{grid-template-columns:1fr;}}
+.form-blok{border:1px solid var(--line);border-radius:10px;padding:1.4rem;background:var(--surface);}
+.form-satir{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+@media (max-width:420px){.form-satir{grid-template-columns:1fr;}}
+.alan{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;}
+.alan label{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);}
+.alan input{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);
+  padding:.75rem .9rem;font-family:inherit;font-size:var(--step-0);color:var(--ink);width:100%;
+}
+.alan input:focus{outline:none;border-color:var(--accent);}
+.opsiyonel{border-top:1px dashed var(--line-2);margin-top:.4rem;padding-top:1rem;}
+.opsiyonel .eyebrow{display:block;margin-bottom:.8rem;font-size:.62rem;}
+.hesap-act{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem;}
+
+.sonuc{
+  border:1px solid var(--line-2);border-radius:10px;padding:1.5rem;background:var(--ground-2);
+  position:sticky;top:88px;
+}
+.sonuc .eyebrow{display:block;}
+.sonuc-beden{font-family:'Bodoni Moda',serif;font-size:clamp(2.6rem,7vw,3.6rem);line-height:1;margin:.5rem 0 .3rem;color:var(--accent);}
+.sonuc-alt{font-size:var(--step--1);color:var(--ink-soft);}
+.sonuc-not{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line);font-size:.75rem;color:var(--ink-mute);line-height:1.6;}
+.sonuc.bos .sonuc-beden{color:var(--line-2);}
+.sonuc-hata{color:var(--accent);font-size:var(--step--1);margin-top:.6rem;}
+
+/* Tablo */
+.tablo-kutu{overflow-x:auto;border:1px solid var(--line);border-radius:10px;}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:var(--step--1);}
+th,td{padding:.85rem 1rem;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;}
+thead th{
+  background:var(--ground-2);font-weight:500;font-size:.68rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);
+}
+tbody tr:last-child td{border-bottom:0;}
+tbody th{
+  background:var(--surface);font-family:'Bodoni Moda',serif;font-size:var(--step-1);
+  font-weight:400;border-bottom:1px solid var(--line);
+}
+tbody tr.secili th,tbody tr.secili td{background:color-mix(in srgb,var(--rose) 18%,var(--ground));}
+tbody tr.secili th{color:var(--accent);}
+
+/* Nasıl ölçülür */
+.olcum{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+@media (max-width:760px){.olcum{grid-template-columns:1fr;}}
+.olcum-kart{border:1px solid var(--line);border-radius:10px;padding:1.2rem;background:var(--surface);}
+.olcum-kart b{display:block;font-family:'Bodoni Moda',serif;font-size:var(--step-1);font-weight:400;margin-bottom:.4rem;}
+.olcum-kart p{color:var(--ink-mute);font-size:var(--step--1);}
+.olcum-kart span{
+  display:inline-block;margin-bottom:.7rem;width:30px;height:30px;border-radius:50%;
+  background:var(--surface-2);color:var(--accent);text-align:center;line-height:30px;font-size:.8rem;
+}
+
+.uyari{
+  margin-top:1.4rem;border:1px solid var(--line);border-left:3px solid var(--rose);
+  border-radius:var(--r);background:var(--ground-2);padding:1rem 1.2rem;
+  font-size:var(--step--1);color:var(--ink-soft);line-height:1.7;
+}
+.uyari b{font-weight:500;color:var(--ink);}
+
+footer{border-top:1px solid var(--line);background:var(--ground-2);padding-block:2rem;margin-top:2rem;}
+.foot-in{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-size:var(--step--2);color:var(--ink-mute);letter-spacing:.06em;}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="wrap head-in">
+    <a class="brand" href="index.html">LURE</a>
+    <a class="btn btn-ghost" href="index.html">← Vitrine dön</a>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <span class="eyebrow">Beden rehberi</span>
+  <h1>Doğru bedeni bul, değişimle uğraşma.</h1>
+  <p>Boy ve kilonla hızlı bir tahmin alabilir, mezuranla ölçtüğün bel ve basen değerlerini girerek kesin sonuca ulaşabilirsin.</p>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec-h">
+      <span class="eyebrow">Beden hesaplayıcı</span>
+      <h2>Sana hangi beden uyar?</h2>
+      <p>Boy ve kilo bir tahmin verir. Bel ve basen ölçünü girersen tablodan birebir eşleşme yapılır — bu her zaman daha doğrudur.</p>
+    </div>
+
+    <div class="hesap">
+      <form class="form-blok" id="hesapForm">
+        <div class="form-satir">
+          <div class="alan">
+            <label for="boy">Boy (cm)</label>
+            <input type="number" id="boy" min="120" max="220" step="1" placeholder="165" inputmode="numeric">
+          </div>
+          <div class="alan">
+            <label for="kilo">Kilo (kg)</label>
+            <input type="number" id="kilo" min="30" max="200" step="1" placeholder="60" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="opsiyonel">
+          <span class="eyebrow">İstersen — mezurayla ölç, kesin sonuç al</span>
+          <div class="form-satir">
+            <div class="alan">
+              <label for="bel">Bel (cm)</label>
+              <input type="number" id="bel" min="50" max="140" step="1" placeholder="72" inputmode="numeric">
+            </div>
+            <div class="alan">
+              <label for="basen">Basen (cm)</label>
+              <input type="number" id="basen" min="70" max="160" step="1" placeholder="98" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+
+        <div class="hesap-act">
+          <button class="btn btn-primary" type="submit">Bedenimi bul</button>
+          <button class="btn btn-ghost" type="reset" id="temizle">Temizle</button>
+        </div>
+      </form>
+
+      <aside class="sonuc bos" id="sonuc" aria-live="polite">
+        <span class="eyebrow">Önerilen beden</span>
+        <div class="sonuc-beden" id="sonucBeden">—</div>
+        <div class="sonuc-alt" id="sonucAlt">Ölçülerini gir, bedenini söyleyelim.</div>
+        <div class="sonuc-not" id="sonucNot">
+          İki beden arasında kaldıysan sütyende küçük, külot ve gecelikte büyük bedeni tercih et.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h">
+      <span class="eyebrow">Beden tablosu</span>
+      <h2>Kadın beden ölçüleri</h2>
+      <p>Ölçüler santimetre cinsindendir ve vücut ölçüsünü belirtir, ürünün kalıp ölçüsünü değil.</p>
+    </div>
+
+    <div class="tablo-kutu">
+      <table id="tablo">
+        <thead>
+          <tr>
+            <th scope="col">Beden</th>
+            <th scope="col">Beden no</th>
+            <th scope="col">Bel (cm)</th>
+            <th scope="col">Basen (cm)</th>
+          </tr>
+        </thead>
+        <tbody id="tabloBody"></tbody>
+      </table>
+    </div>
+
+    <p class="uyari">
+      <b>Not:</b> Tablo, elimizdeki ölçü çizelgesinden alınmıştır. XS satırındaki basen değeri kaynak çizelgede
+      bel sütunuyla aynı aralıkta göründüğü için, tablodaki 4 cm'lik adıma göre <b>90-94</b> olarak yazılmıştır —
+      kendi ölçülerinle doğrulaman iyi olur.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-h">
+      <span class="eyebrow">Nasıl ölçülür</span>
+      <h2>Mezurayı doğru tut</h2>
+    </div>
+    <div class="olcum">
+      <div class="olcum-kart">
+        <span>1</span>
+        <b>Bel</b>
+        <p>Gövdenin en ince yerinden, genelde göbek deliğinin birkaç parmak üstünden ölç. Mezura düz dursun, sıkma.</p>
+      </div>
+      <div class="olcum-kart">
+        <span>2</span>
+        <b>Basen</b>
+        <p>Kalçanın en geniş yerinden, ayaklar bitişikken ölç. Mezura yere paralel olmalı.</p>
+      </div>
+      <div class="olcum-kart">
+        <span>3</span>
+        <b>Göğüs</b>
+        <p>Sütyen takılıyken göğsün en dolgun yerinden ölç. Nefesini tutma, normal dur.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <span>© 2026 Lure İç Giyim</span>
+    <span><a href="index.html">Vitrine dön</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* Beden tablosu — bel/basen aralıkları cm.
+     XS basen değeri kaynak çizelgede hatalı göründüğü için 4 cm'lik adıma göre yazıldı. */
+  var TABLO = [
+    { beden:'XS',  no:'34-36', bel:[62,66],  basen:[90,94]   },
+    { beden:'S',   no:'36-38', bel:[66,70],  basen:[94,98]   },
+    { beden:'M',   no:'38-40', bel:[70,74],  basen:[98,102]  },
+    { beden:'L',   no:'40-42', bel:[74,78],  basen:[102,106] },
+    { beden:'XL',  no:'42-44', bel:[78,82],  basen:[106,110] },
+    { beden:'2XL', no:'44-46', bel:[82,86],  basen:[110,114] },
+    { beden:'3XL', no:'46-48', bel:[86,90],  basen:[114,118] },
+    { beden:'4XL', no:'48-50', bel:[90,94],  basen:[118,122] },
+    { beden:'5XL', no:'50-52', bel:[94,98],  basen:[122,126] }
+  ];
+
+  /* Vücut kütle indeksi bandı → beden sırası. Sadece tahmin içindir. */
+  var VKI_SINIR = [18.5, 20.5, 22.5, 25, 27.5, 30, 33, 36];
+
+  var govde = document.getElementById('tabloBody');
+  govde.innerHTML = TABLO.map(function(s){
+    return '<tr data-beden="' + s.beden + '">' +
+      '<th scope="row">' + s.beden + '</th>' +
+      '<td>' + s.no + '</td>' +
+      '<td>' + s.bel[0] + '-' + s.bel[1] + '</td>' +
+      '<td>' + s.basen[0] + '-' + s.basen[1] + '</td>' +
+    '</tr>';
+  }).join('');
+
+  function olcudenSira(deger, alan){
+    if (deger <= TABLO[0][alan][1]) return 0;
+    for (var i = 0; i < TABLO.length; i++){
+      if (deger <= TABLO[i][alan][1]) return i;
+    }
+    return TABLO.length - 1;
+  }
+
+  function vkidenSira(vki){
+    for (var i = 0; i < VKI_SINIR.length; i++){
+      if (vki < VKI_SINIR[i]) return i;
+    }
+    return TABLO.length - 1;
+  }
+
+  function isaretle(beden){
+    var satirlar = govde.querySelectorAll('tr');
+    for (var i = 0; i < satirlar.length; i++){
+      satirlar[i].classList.toggle('secili', satirlar[i].getAttribute('data-beden') === beden);
+    }
+  }
+
+  var sonuc = document.getElementById('sonuc');
+  var sonucBeden = document.getElementById('sonucBeden');
+  var sonucAlt = document.getElementById('sonucAlt');
+  var sonucNot = document.getElementById('sonucNot');
+
+  function yaz(sira, kaynak, ek){
+    var s = TABLO[sira];
+    sonuc.classList.remove('bos');
+    sonucBeden.textContent = s.beden;
+    sonucAlt.textContent = 'Beden no ' + s.no + ' · Bel ' + s.bel[0] + '-' + s.bel[1] +
+                           ' cm · Basen ' + s.basen[0] + '-' + s.basen[1] + ' cm';
+    sonucNot.innerHTML = kaynak + (ek ? '<br>' + ek : '') +
+      '<br>İki beden arasında kaldıysan sütyende küçük, külot ve gecelikte büyük bedeni seç.';
+    isaretle(s.beden);
+  }
+
+  function hata(mesaj){
+    sonuc.classList.add('bos');
+    sonucBeden.textContent = '—';
+    sonucAlt.textContent = mesaj;
+    sonucNot.textContent = 'Bel ölçün en ince yerden, basen ölçün kalçanın en geniş yerinden alınmalı.';
+    isaretle(null);
+  }
+
+  document.getElementById('hesapForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    var bel = parseFloat(document.getElementById('bel').value);
+    var basen = parseFloat(document.getElementById('basen').value);
+    var boy = parseFloat(document.getElementById('boy').value);
+    var kilo = parseFloat(document.getElementById('kilo').value);
+
+    var belVar = isFinite(bel) && bel >= 50 && bel <= 140;
+    var basenVar = isFinite(basen) && basen >= 70 && basen <= 160;
+
+    /* 1) Mezura ölçüsü varsa onu kullan — en doğrusu */
+    if (belVar || basenVar){
+      var sBel = belVar ? olcudenSira(bel, 'bel') : -1;
+      var sBasen = basenVar ? olcudenSira(basen, 'basen') : -1;
+      var secim = Math.max(sBel, sBasen);
+      var ek = '';
+      if (sBel > -1 && sBasen > -1 && sBel !== sBasen){
+        ek = 'Bel ölçün ' + TABLO[sBel].beden + ', basen ölçün ' + TABLO[sBasen].beden +
+             ' gösteriyor. Rahat otursun diye büyük olanı önerdik.';
+      }
+      yaz(secim, 'Mezura ölçüne göre hesaplandı.', ek);
+      return;
+    }
+
+    /* 2) Ölçü yoksa boy-kilo tahmini */
+    if (!isFinite(boy) || boy < 120 || boy > 220 || !isFinite(kilo) || kilo < 30 || kilo > 200){
+      hata('Boy ve kiloyu gir ya da bel/basen ölçünü yaz.');
+      return;
+    }
+    var vki = kilo / Math.pow(boy / 100, 2);
+    var sira = vkidenSira(vki);
+
+    /* Sınıra çok yakınsa iki bedeni birden söyle */
+    var yakin = '';
+    for (var i = 0; i < VKI_SINIR.length; i++){
+      if (Math.abs(vki - VKI_SINIR[i]) < 0.4){
+        var alt = TABLO[Math.min(i, TABLO.length - 1)].beden;
+        var ust = TABLO[Math.min(i + 1, TABLO.length - 1)].beden;
+        yakin = 'Sınırdasın: ' + alt + ' ve ' + ust + ' arasında düşün, kalıp tercihine göre seç.';
+        break;
+      }
+    }
+    yaz(sira, 'Boy-kilo tahmini (VKİ ' + vki.toFixed(1) + '). Kesin sonuç için bel ve basen ölçünü gir.', yakin);
+  });
+
+  document.getElementById('temizle').addEventListener('click', function(){
+    setTimeout(function(){
+      sonuc.classList.add('bos');
+      sonucBeden.textContent = '—';
+      sonucAlt.textContent = 'Ölçülerini gir, bedenini söyleyelim.';
+      sonucNot.textContent = 'İki beden arasında kaldıysan sütyende küçük, külot ve gecelikte büyük bedeni tercih et.';
+      isaretle(null);
+    }, 0);
+  });
+})();
+</script>
+</body>
+</html>

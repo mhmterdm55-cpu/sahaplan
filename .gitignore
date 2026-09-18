@@ -1,0 +1,5 @@
+﻿# Yedek ve geçici dosyalar
+*.bak
+*.bak*
+Thumbs.db
+desktop.ini
