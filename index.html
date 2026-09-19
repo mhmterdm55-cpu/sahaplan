@@ -783,6 +783,36 @@ img.cart-thumb{object-fit:cover;}
 .sosyal a{display:inline-flex;align-items:center;gap:.45rem;font-size:var(--step--1);color:var(--ink-soft);transition:color .2s;}
 .sosyal a:hover{color:var(--accent);}
 .sosyal svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.4;}
+
+/* ── Ödeme adımı ve siparişler ──────────────────────────────────── */
+.checkout{display:flex;flex-direction:column;gap:.8rem;}
+.checkout .eyebrow{margin-bottom:.2rem;}
+.checkout textarea{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);
+  padding:.8rem .95rem;color:var(--ink);font-family:inherit;font-size:var(--step-0);resize:vertical;
+}
+.checkout textarea:focus{outline:none;border-color:var(--accent);}
+.checkout-ozet{display:flex;justify-content:space-between;align-items:baseline;padding-top:.6rem;border-top:1px solid var(--line);font-size:var(--step--1);color:var(--ink-soft);}
+.checkout-ozet b{font-size:var(--step-1);font-weight:400;color:var(--accent);}
+.checkout-not{font-size:.72rem;color:var(--ink-mute);line-height:1.5;}
+.siparis-ok{display:flex;flex-direction:column;align-items:center;text-align:center;gap:.7rem;padding:2rem 1rem;}
+.siparis-ok-ikon{width:52px;height:52px;border-radius:50%;background:var(--rose);color:var(--rose-ink);display:grid;place-items:center;font-size:1.4rem;}
+.siparis-ok b{font-family:'Bodoni Moda',serif;font-size:var(--step-2);font-weight:400;}
+.siparis-ok p{color:var(--ink-soft);font-size:var(--step--1);max-width:30ch;}
+.siparis-ok strong{color:var(--accent);font-weight:500;}
+.pane-intro{font-size:var(--step--1);color:var(--ink-soft);}
+.siparis-liste{display:flex;flex-direction:column;gap:.6rem;padding:.4rem 0 .9rem;border-bottom:1px solid var(--line);}
+.siparis-bos{font-size:var(--step--1);color:var(--ink-mute);padding:.4rem .2rem;}
+.siparis{border:1px solid var(--line);border-radius:8px;padding:.75rem .9rem;font-size:var(--step--1);}
+.siparis-ust{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.siparis-ust b{font-weight:500;}
+.siparis-ust span{color:var(--ink-mute);font-size:.72rem;}
+.siparis ul{list-style:none;margin:.4rem 0 0;padding:0;color:var(--ink-soft);font-size:.78rem;}
+.siparis-alt{margin-top:.4rem;color:var(--accent);}
+.durum{margin-left:auto;font-style:normal;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .55rem;border-radius:100px;background:var(--surface-2);color:var(--ink-soft);}
+.durum-kargoda{background:#EAF2FA;color:#2F5D8C;}
+.durum-teslim{background:#E8F4EC;color:#2E7D52;}
+.durum-iptal{background:#FBEAEA;color:#B3261E;}
 </style>
 
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -1138,7 +1168,7 @@ img.cart-thumb{object-fit:cover;}
         <label for="loginPass">Şifre</label>
         <input id="loginPass" type="password" placeholder="••••••••" required autocomplete="current-password">
       </div>
-      <a class="link-mini" href="#">Şifremi unuttum</a>
+      <a class="link-mini" href="#" id="forgotLink">Şifremi unuttum</a>
       <button class="btn btn-primary btn-block" type="submit">Giriş yap</button>
       <p class="msg" data-msg></p>
     </form>
@@ -1187,16 +1217,25 @@ img.cart-thumb{object-fit:cover;}
         </div>
       </div>
       <div class="profile-menu">
-        <a href="#">Siparişlerim <em>0 sipariş</em></a>
-        <a href="#">Adreslerim <em>Ekle</em></a>
+        <a href="#" id="profSiparisLink">Siparişlerim <em id="profSiparis">—</em></a>
+        <div class="siparis-liste" id="siparisListe" hidden></div>
         <a href="#" id="profFavLink">Favorilerim <em id="profFav">0 ürün</em></a>
-        <a href="#">Hesap bilgilerim <em>Düzenle</em></a>
       </div>
       <button class="btn btn-ghost btn-block" type="button" id="logoutBtn">Çıkış yap</button>
     </div>
 
+    <form class="pane" id="paneReset" role="tabpanel">
+      <p class="pane-intro">Şifre sıfırlama bağlantısıyla geldin. Yeni şifreni belirle.</p>
+      <div class="field">
+        <label for="resetPass">Yeni şifre</label>
+        <input id="resetPass" type="password" placeholder="En az 8 karakter" minlength="8" required autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Şifreyi güncelle</button>
+      <p class="msg" data-msg></p>
+    </form>
+
     <div class="modal-foot" id="modalFoot">
-      Test hesabı — E-posta: <b>demo@lure.com</b> · Şifre: <b>lure1234</b>
+      Şifren şifrelenmiş olarak saklanır; biz dahil kimse göremez.
     </div>
   </div>
 </div>
@@ -1291,9 +1330,22 @@ img.cart-thumb{object-fit:cover;}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 (function(){
   'use strict';
+
+  /* ── Supabase bağlantısı ─────────────────────────────────────────
+     Ürünler, üyelik ve siparişler burada tutulur. Anahtar herkese açık
+     türdendir; veriyi koruyan şey veritabanındaki erişim kurallarıdır. */
+  var SUPABASE_URL = 'https://mtgzakojyripcjlzqnfo.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_Y75m1vMEBzDJYVAKPqphdQ_OkLbWg7w';
+  var sb = (window.supabase && SUPABASE_URL && SUPABASE_KEY)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
+  var canliVeri = false;   /* ürünler Supabase'den yüklendiyse true */
+  var oturum = null;       /* giriş yapmış kullanıcının oturumu */
+  var girisSonraSepet = false;
 
   /* Türkçe büyük harf kuralı: i → İ, ı → I.
      Sayfa dili tanımlı olmazsa tarayıcı "gizli" kelimesini "GIZLI" yapıyor. */
@@ -1529,6 +1581,7 @@ img.cart-thumb{object-fit:cover;}
 
   function renderCart(){
     cartCount.textContent = String(sepetToplamAdet());
+    document.getElementById('odeBtn').hidden = false;
     if (!cart.length){
       drawerBody.classList.remove('has-items');
       drawerBody.innerHTML =
@@ -1639,23 +1692,21 @@ img.cart-thumb{object-fit:cover;}
     });
   });
 
-  /* ── Test hesabı ──────────────────────────────────────────────────
-     SADECE TASARIM TESTİ İÇİN. Şifre kodun içinde açık duruyor,
-     gerçek üyelik altyapısı bağlanınca bu blok tamamen silinecek. */
-  var DEMO = { mail:'demo@lure.com', pass:'lure1234', name:'Mehmet Ali Erdem' };
-
+  /* ── Üyelik (Supabase Auth) ───────────────────────────────────────
+     Kayıt, giriş, çıkış ve şifre sıfırlama Supabase'de yapılır; şifre
+     hiçbir zaman bu koda ya da bize ulaşmaz. */
   var modalCard = userModal.querySelector('.modal-card');
   var modalFoot = document.getElementById('modalFoot');
   var modalSub  = userModal.querySelector('.modal-head p');
   var userBtnEl = document.getElementById('userBtn');
   var signedIn  = false;
+  var profil    = null;
 
-  function store(v){
-    try { v ? localStorage.setItem('lure_user', v) : localStorage.removeItem('lure_user'); }
-    catch (err) { /* depolama kapalıysa sorun değil */ }
-  }
-  function stored(){
-    try { return localStorage.getItem('lure_user'); } catch (err) { return null; }
+  function paneGoster(id){
+    ['paneLogin','paneSignup','paneProfile','paneReset'].forEach(function(p){
+      document.getElementById(p).classList.toggle('on', p === id);
+    });
+    document.querySelector('.tabs').hidden = (id === 'paneProfile' || id === 'paneReset');
   }
 
   function setSignedIn(on, mail, name){
@@ -1663,59 +1714,189 @@ img.cart-thumb{object-fit:cover;}
     modalCard.classList.toggle('signed', on);
     userBtnEl.classList.toggle('signed', on);
     userBtnEl.setAttribute('aria-label', on ? 'Hesabım — giriş yapıldı' : 'Hesabım');
-    document.getElementById('paneLogin').classList.toggle('on', false);
-    document.getElementById('paneSignup').classList.toggle('on', false);
-    document.getElementById('paneProfile').classList.toggle('on', on);
-    if (!on) document.getElementById('paneLogin').classList.add('on');
+    paneGoster(on ? 'paneProfile' : 'paneLogin');
 
+    var kutu = document.querySelector('#drawerAccount b');
+    var kutuAlt = document.querySelector('#drawerAccount small');
     if (on){
       var parts = (name || '').trim().split(/\s+/);
       var ini = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toLocaleUpperCase('tr');
       document.getElementById('avatar').textContent = ini;
       document.getElementById('profName').textContent = name;
       document.getElementById('profMail').textContent = mail;
-      modalSub.textContent = 'Siparişlerini ve adreslerini buradan yönetebilirsin.';
-      modalFoot.textContent = 'Test hesabıyla giriş yapıldı — gerçek bir üyelik kaydı oluşmadı.';
+      modalSub.textContent = 'Siparişlerini ve favorilerini buradan takip edebilirsin.';
+      modalFoot.textContent = 'Giriş yapıldı. Çıkış yapana kadar bu cihazda açık kalır.';
+      if (kutu) kutu.textContent = name;
+      if (kutuAlt) kutuAlt.textContent = 'Giriş yapıldı · siparişlerin hesabına kaydedilir';
     } else {
       modalSub.textContent = 'Siparişlerini takip et, favorilerini kaydet.';
-      modalFoot.innerHTML =
-        'Test hesabı — E-posta: <b>demo@lure.com</b> · Şifre: <b>lure1234</b>';
+      modalFoot.textContent = 'Şifren şifrelenmiş olarak saklanır; biz dahil kimse göremez.';
+      if (kutu) kutu.textContent = 'Hesabına gir';
+      if (kutuAlt) kutuAlt.textContent = 'Siparişini takip et, adreslerini kaydet';
+      document.getElementById('siparisListe').hidden = true;
+      document.getElementById('profSiparis').textContent = '—';
     }
   }
 
-  /* Giriş formu */
+  /* Supabase'in İngilizce hatalarını Türkçeye çevir */
+  function hataMetni(err){
+    var m = (err && err.message) ? err.message : String(err || '');
+    var k = m.toLowerCase();
+    if (k.indexOf('invalid login credentials') > -1) return 'E-posta veya şifre hatalı.';
+    if (k.indexOf('email not confirmed') > -1)       return 'Önce e-postana gelen doğrulama bağlantısına tıkla.';
+    if (k.indexOf('already registered') > -1)        return 'Bu e-posta zaten kayıtlı. Giriş yapmayı dene.';
+    if (k.indexOf('password should be') > -1)        return 'Şifre en az 8 karakter olmalı.';
+    if (k.indexOf('rate limit') > -1 || k.indexOf('too many') > -1) return 'Çok fazla deneme yaptın, biraz bekleyip tekrar dene.';
+    if (k.indexOf('invalid email') > -1 || k.indexOf('unable to validate email') > -1 || k.indexOf('is invalid') > -1) return 'E-posta adresi geçersiz görünüyor.';
+    if (k.indexOf('failed to fetch') > -1 || k.indexOf('network') > -1) return 'Bağlantı kurulamadı. İnternetini kontrol et.';
+    return m || 'Bir şeyler ters gitti, tekrar dene.';
+  }
+
+  function mesaj(form, metin, hata){
+    var el = form.querySelector('[data-msg]');
+    el.classList.toggle('err', !!hata);
+    el.textContent = metin || '';
+  }
+
+  function oturumUygula(session){
+    oturum = session;
+    if (session && session.user){
+      var m = session.user.user_metadata || {};
+      profil = { ad: m.ad || '', soyad: m.soyad || '', telefon: m.telefon || '' };
+      var ad = (profil.ad + ' ' + profil.soyad).trim() || session.user.email;
+      setSignedIn(true, session.user.email, ad);
+      siparisleriYukle();
+      if (girisSonraSepet){ girisSonraSepet = false; closeAll(); if (cart.length) openCart(); }
+    } else {
+      profil = null;
+      setSignedIn(false);
+    }
+  }
+
+  if (sb){
+    sb.auth.getSession().then(function(r){ oturumUygula(r.data ? r.data.session : null); });
+    sb.auth.onAuthStateChange(function(event, session){
+      if (event === 'PASSWORD_RECOVERY'){
+        oturum = session;
+        paneGoster('paneReset');
+        userModal.classList.add('on'); scrim.classList.add('on');
+        return;
+      }
+      oturumUygula(session);
+    });
+  } else {
+    modalFoot.textContent = 'Üyelik altyapısına bağlanılamadı. Sayfayı yenilemeyi dene.';
+  }
+
+  /* Giriş */
   document.getElementById('paneLogin').addEventListener('submit', function(e){
     e.preventDefault();
-    var msg = this.querySelector('[data-msg]');
+    var form = this;
+    if (!sb){ mesaj(form, 'Üyelik altyapısına bağlanılamadı.', true); return; }
     var mail = document.getElementById('loginMail').value.trim().toLocaleLowerCase('tr');
     var pass = document.getElementById('loginPass').value;
-
-    if (mail === DEMO.mail && pass === DEMO.pass){
-      msg.textContent = '';
-      msg.classList.remove('err');
-      store(DEMO.name);
-      setSignedIn(true, DEMO.mail, DEMO.name);
-      this.reset();
-    } else {
-      msg.classList.add('err');
-      msg.textContent = 'E-posta veya şifre hatalı. Test hesabı aşağıda yazıyor.';
-    }
+    mesaj(form, 'Giriş yapılıyor…');
+    sb.auth.signInWithPassword({ email: mail, password: pass }).then(function(r){
+      if (r.error){ mesaj(form, hataMetni(r.error), true); return; }
+      mesaj(form, '');
+      form.reset();
+    });
   });
 
-  /* Üyelik formu — arka uç yok, bilgilendirme veriyor */
+  /* Üye ol */
   document.getElementById('paneSignup').addEventListener('submit', function(e){
     e.preventDefault();
-    var msg = this.querySelector('[data-msg]');
-    msg.classList.remove('err');
-    msg.textContent = 'Üyelik altyapısı bağlandığında bu form gerçek kayıt oluşturacak.';
+    var form = this;
+    if (!sb){ mesaj(form, 'Üyelik altyapısına bağlanılamadı.', true); return; }
+    var ad = document.getElementById('regName').value.trim();
+    var soyad = document.getElementById('regSurname').value.trim();
+    var mail = document.getElementById('regMail').value.trim().toLocaleLowerCase('tr');
+    var tel = document.getElementById('regPhone').value.trim();
+    var pass = document.getElementById('regPass').value;
+    mesaj(form, 'Kaydediliyor…');
+    sb.auth.signUp({
+      email: mail, password: pass,
+      options: { data: { ad: ad, soyad: soyad, telefon: tel } }
+    }).then(function(r){
+      if (r.error){ mesaj(form, hataMetni(r.error), true); return; }
+      if (!r.data || !r.data.session){
+        mesaj(form, 'Kaydın alındı. E-postana gelen doğrulama bağlantısına tıkla, sonra giriş yap.');
+        return;
+      }
+      mesaj(form, '');
+      form.reset();
+    });
+  });
+
+  /* Şifremi unuttum */
+  document.getElementById('forgotLink').addEventListener('click', function(e){
+    e.preventDefault();
+    var form = document.getElementById('paneLogin');
+    var mail = document.getElementById('loginMail').value.trim().toLocaleLowerCase('tr');
+    if (!sb){ mesaj(form, 'Üyelik altyapısına bağlanılamadı.', true); return; }
+    if (!mail){ mesaj(form, 'Önce yukarıya e-postanı yaz, sonra "Şifremi unuttum"a bas.', true); return; }
+    mesaj(form, 'Gönderiliyor…');
+    sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + location.pathname }).then(function(r){
+      if (r.error){ mesaj(form, hataMetni(r.error), true); return; }
+      mesaj(form, 'Şifre sıfırlama bağlantısı e-postana gönderildi.');
+    });
+  });
+
+  /* Yeni şifre (sıfırlama bağlantısından gelince) */
+  document.getElementById('paneReset').addEventListener('submit', function(e){
+    e.preventDefault();
+    var form = this;
+    var pass = document.getElementById('resetPass').value;
+    mesaj(form, 'Güncelleniyor…');
+    sb.auth.updateUser({ password: pass }).then(function(r){
+      if (r.error){ mesaj(form, hataMetni(r.error), true); return; }
+      mesaj(form, 'Şifren güncellendi.');
+      form.reset();
+      setTimeout(function(){ oturumUygula(oturum); }, 900);
+    });
   });
 
   document.getElementById('logoutBtn').addEventListener('click', function(){
-    store(null);
-    setSignedIn(false);
+    if (sb) sb.auth.signOut();
+    oturumUygula(null);
   });
 
-  if (stored()) setSignedIn(true, DEMO.mail, stored());
+  /* Siparişlerim */
+  var DURUM_ADI = { alindi:'Alındı', hazirlaniyor:'Hazırlanıyor', kargoda:'Kargoda', teslim:'Teslim edildi', iptal:'İptal' };
+
+  function siparisleriYukle(){
+    if (!sb || !oturum) return;
+    sb.from('siparisler')
+      .select('id, durum, toplam, created_at, siparis_satirlari(urun_ad, beden, adet, fiyat)')
+      .order('created_at', { ascending:false }).limit(20)
+      .then(function(r){
+        var liste = document.getElementById('siparisListe');
+        var say = document.getElementById('profSiparis');
+        if (r.error){ say.textContent = '—'; return; }
+        var d = r.data || [];
+        say.textContent = d.length + ' sipariş';
+        if (!d.length){ liste.innerHTML = '<p class="siparis-bos">Henüz siparişin yok.</p>'; return; }
+        liste.innerHTML = d.map(function(s){
+          var tarih = new Date(s.created_at).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' });
+          var satirlar = (s.siparis_satirlari || []).map(function(x){
+            return '<li>' + kacis(x.urun_ad || 'Ürün') + ' · ' + kacis(x.beden) + ' × ' + x.adet + '</li>';
+          }).join('');
+          return '<div class="siparis">' +
+            '<div class="siparis-ust"><b>#' + s.id + '</b><span>' + tarih + '</span>' +
+              '<em class="durum durum-' + kacis(s.durum) + '">' + (DURUM_ADI[s.durum] || s.durum) + '</em></div>' +
+            '<ul>' + satirlar + '</ul>' +
+            '<div class="siparis-alt">' + Number(s.toplam).toLocaleString('tr-TR') + ' ₺</div>' +
+          '</div>';
+        }).join('');
+      });
+  }
+
+  document.getElementById('profSiparisLink').addEventListener('click', function(e){
+    e.preventDefault();
+    var liste = document.getElementById('siparisListe');
+    liste.hidden = !liste.hidden;
+    if (!liste.hidden) siparisleriYukle();
+  });
   scrim.addEventListener('click', closeAll);
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') return;
@@ -2139,6 +2320,7 @@ img.cart-thumb{object-fit:cover;}
     var h = '';
     for (var i = 0; i < PRODUCTS.length; i++) h += cardHTML(i);
     grid.innerHTML = h;
+    document.getElementById('shopCount').textContent = PRODUCTS.length + ' ürün';
     grid.querySelectorAll('.card').forEach(function(c){ c.classList.add('in'); });
     if (!katSec.hidden){
       var acik = chips.querySelector('.chip[aria-pressed="true"]');
@@ -2148,22 +2330,135 @@ img.cart-thumb{object-fit:cover;}
     }
   }
 
-  document.getElementById('odeBtn').addEventListener('click', function(){
+  /* ── Ürünleri Supabase'den çek ───────────────────────────────────
+     Sayfa önce yerel taslaklarla açılır, Supabase'de ürün varsa
+     onlarla değiştirilir. Böylece bağlantı yavaşsa bile sayfa boş kalmaz. */
+  function urunleriCek(){
+    if (!sb) return Promise.resolve(false);
+    return sb.from('urunler').select('*').eq('aktif', true)
+      .order('sira', { ascending:true }).order('created_at', { ascending:true })
+      .then(function(r){
+        if (r.error || !r.data || !r.data.length) return false;
+        PRODUCTS.length = 0;
+        r.data.forEach(function(row, i){ PRODUCTS.push(urunDuzelt(row, i)); });
+        canliVeri = true;
+        /* Artık var olmayan ürünler sepetten düşsün */
+        cart = cart.filter(function(s){ return urunBul(s.id) > -1; });
+        sepetYaz();
+        return true;
+      })
+      .catch(function(){ return false; });
+  }
+
+  /* ── Ödeme adımı ────────────────────────────────────────────────── */
+  var odeBtn = document.getElementById('odeBtn');
+
+  function checkoutAc(){
     if (!cart.length) return;
-    for (var i = 0; i < cart.length; i++){
-      var idx = urunBul(cart[i].id);
-      if (idx < 0) continue;
-      var p = PRODUCTS[idx];
-      p.stok[cart[i].size] = Math.max(0, (p.stok[cart[i].size] || 0) - cart[i].adet);
+
+    /* Supabase yoksa eski demo davranışı: stok yerelde düşer */
+    if (!sb || !canliVeri){
+      for (var i = 0; i < cart.length; i++){
+        var idx = urunBul(cart[i].id);
+        if (idx < 0) continue;
+        PRODUCTS[idx].stok[cart[i].size] = Math.max(0, (PRODUCTS[idx].stok[cart[i].size] || 0) - cart[i].adet);
+      }
+      urunleriYaz();
+      cart = []; sepetYaz(); renderCart(); izgaralariTazele();
+      drawerBody.classList.remove('has-items');
+      drawerBody.innerHTML = '<p>Siparişin alındı, stoklar güncellendi. (Demo: gerçek ödeme alınmıyor.)</p>';
+      return;
     }
-    urunleriYaz();
-    cart = [];
-    sepetYaz();
-    renderCart();
-    izgaralariTazele();
-    drawerBody.classList.remove('has-items');
+
+    if (!oturum){
+      girisSonraSepet = true;
+      openUser();
+      mesaj(document.getElementById('paneLogin'), 'Sipariş vermek için giriş yap ya da üye ol.');
+      return;
+    }
+
+    var toplam = 0, hepsiFiyatli = true;
+    cart.forEach(function(s){
+      var p = PRODUCTS[urunBul(s.id)];
+      if (!p || p.fiyat === null) hepsiFiyatli = false; else toplam += p.fiyat * s.adet;
+    });
+    var adSoyad = profil ? (profil.ad + ' ' + profil.soyad).trim() : '';
+    var tel = profil ? profil.telefon : '';
+
+    drawerBody.classList.add('has-items');
     drawerBody.innerHTML =
-      '<p>Siparişin alındı, stoklar güncellendi. (Demo: gerçek ödeme alınmıyor.)</p>';
+      '<form class="checkout" id="checkoutForm">' +
+        '<span class="eyebrow">Teslimat bilgileri</span>' +
+        '<div class="field"><label for="coAd">Ad Soyad</label>' +
+          '<input id="coAd" type="text" required autocomplete="name" value="' + kacis(adSoyad) + '"></div>' +
+        '<div class="field"><label for="coTel">Telefon</label>' +
+          '<input id="coTel" type="tel" required autocomplete="tel" placeholder="05XX XXX XX XX" value="' + kacis(tel) + '"></div>' +
+        '<div class="field"><label for="coAdres">Adres</label>' +
+          '<textarea id="coAdres" required rows="3" placeholder="Mahalle, sokak, no, daire · ilçe / il"></textarea></div>' +
+        '<div class="field"><label for="coNot">Sipariş notu (isteğe bağlı)</label>' +
+          '<input id="coNot" type="text" placeholder="Kapıcıya bırakabilirsiniz…"></div>' +
+        '<div class="checkout-ozet"><span>' + sepetToplamAdet() + ' ürün</span>' +
+          '<b>' + (hepsiFiyatli ? toplam.toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</b></div>' +
+        '<p class="checkout-not">Ödeme altyapısı henüz bağlı değil: sipariş kaydedilir, ödeme sonra alınır.</p>' +
+        '<button class="btn btn-primary btn-block" type="submit">Siparişi tamamla</button>' +
+        '<button class="btn btn-ghost btn-block" type="button" id="coGeri">← Sepete dön</button>' +
+        '<p class="msg" data-msg></p>' +
+      '</form>';
+    odeBtn.hidden = true;
+    setTimeout(function(){ document.getElementById(adSoyad ? 'coAdres' : 'coAd').focus(); }, 120);
+  }
+
+  drawerBody.addEventListener('click', function(e){
+    if (e.target.id === 'coGeri'){ renderCart(); }
+  });
+
+  drawerBody.addEventListener('submit', function(e){
+    if (e.target.id !== 'checkoutForm') return;
+    e.preventDefault();
+    var form = e.target;
+    var dugme = form.querySelector('[type="submit"]');
+    var satirlar = cart.map(function(s){ return { id: s.id, beden: s.size, adet: s.adet }; });
+    dugme.disabled = true;
+    mesaj(form, 'Sipariş gönderiliyor…');
+    sb.rpc('siparis_ver', {
+      satirlar: satirlar,
+      ad_soyad: document.getElementById('coAd').value.trim(),
+      telefon: document.getElementById('coTel').value.trim(),
+      adres: document.getElementById('coAdres').value.trim(),
+      musteri_notu: document.getElementById('coNot').value.trim()
+    }).then(function(r){
+      if (r.error){
+        dugme.disabled = false;
+        mesaj(form, hataMetni(r.error), true);
+        return;
+      }
+      var no = r.data;
+      cart = []; sepetYaz(); renderCart();
+      drawerBody.classList.add('has-items');
+      drawerBody.innerHTML =
+        '<div class="siparis-ok">' +
+          '<span class="siparis-ok-ikon">✓</span>' +
+          '<b>Siparişin alındı</b>' +
+          '<p>Sipariş numaran <strong>#' + no + '</strong>. Hesabındaki "Siparişlerim" bölümünden takip edebilirsin.</p>' +
+          '<button class="btn btn-ghost" type="button" id="coKapat">Alışverişe devam</button>' +
+        '</div>';
+      siparisleriYukle();
+      urunleriCek().then(function(ok){ if (ok) izgaralariTazele(); });
+    });
+  });
+
+  drawerBody.addEventListener('click', function(e){
+    if (e.target.id === 'coKapat') closeAll();
+  });
+
+  odeBtn.addEventListener('click', checkoutAc);
+
+  /* Canlı ürünleri çek; geldiyse vitrini, sepeti ve favorileri tazele */
+  urunleriCek().then(function(ok){
+    if (!ok) return;
+    izgaralariTazele();
+    renderCart();
+    favoriGuncelle();
   });
 
   /* ── WhatsApp düğmesi ve sosyal medya bağlantıları ─────────────── */
