@@ -69,10 +69,14 @@ p{margin:0;}
 #userBtn.signed .userBtn-dot{display:block;}
 
 /* ── Duyuru + başlık ───────────────────────────────────────── */
-.announce{background:var(--ink);color:#fff;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;text-align:center;padding:.6rem var(--pad);}
-.announce span{opacity:.85;}
-.announce i{display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--rose);margin:0 .9rem;vertical-align:middle;}
-@media (max-width:640px){.announce i,.announce span:nth-child(n+3){display:none;}}
+.announce{background:var(--ink);color:#fff;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;overflow:hidden;}
+.announce-marquee{display:flex;width:max-content;animation:announce-slide 38s linear infinite;}
+.announce-marquee:hover{animation-play-state:paused;}
+.announce-track{display:flex;align-items:center;gap:3.2rem;height:36px;white-space:nowrap;padding-right:3.2rem;}
+.announce-track span{display:flex;align-items:center;gap:.7rem;opacity:.88;}
+.announce-track i{width:3px;height:3px;border-radius:50%;background:var(--rose);flex:none;}
+@keyframes announce-slide{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (prefers-reduced-motion:reduce){.announce-marquee{animation:none;width:auto;} .announce-track[aria-hidden="true"]{display:none;} .announce{overflow-x:auto;}}
 .head{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);}
 .head-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;padding-block:1.1rem;transition:padding .3s;}
 .head.small .head-in{padding-block:.65rem;}
@@ -420,7 +424,20 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
 </svg>
 
 <div class="announce" lang="tr">
-  <span>Gizli ve isimsiz paketleme</span><i></i><span>1.500 ₺ üzeri kargo bedava</span><i></i><span>14 günde değişim</span>
+  <div class="announce-marquee">
+    <div class="announce-track">
+      <span><i></i>Gizli ve isimsiz paketleme</span>
+      <span><i></i>1.500 ₺ üzeri kargo bedava</span>
+      <span><i></i>Hijyen kuralına uygun 14 günde değişim</span>
+      <span><i></i>14:00'a kadar aynı gün kargo</span>
+    </div>
+    <div class="announce-track" aria-hidden="true">
+      <span><i></i>Gizli ve isimsiz paketleme</span>
+      <span><i></i>1.500 ₺ üzeri kargo bedava</span>
+      <span><i></i>Hijyen kuralına uygun 14 günde değişim</span>
+      <span><i></i>14:00'a kadar aynı gün kargo</span>
+    </div>
+  </div>
 </div>
 
 <header class="head" id="head" lang="tr">
