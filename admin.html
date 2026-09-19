@@ -193,7 +193,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 .drop-t{display:flex;flex-direction:column;gap:.5rem;align-items:flex-start;}
 .drop-t p{font-size:.8rem;color:var(--mute);}
 .drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.drop .btn{position:relative;z-index:2;}
+.drop .btn{position:relative;z-index:2;cursor:pointer;}
+.drop .thumb{cursor:pointer;}
 
 .sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;}
 .size{display:flex;flex-direction:column;gap:.25rem;}
@@ -375,13 +376,13 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       <div class="thumb" id="drThumb"></div>
       <div class="drop-t">
         <b>Ürün fotoğrafı</b>
-        <p>Sürükleyip bırak ya da seç. 900px'e küçültülüp yüklenir.</p>
+        <p>Bilgisayarından ya da telefonundan seç; sürükleyip bırakabilirsin de. 900px'e küçültülüp yüklenir.</p>
         <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span class="btn btn-soft btn-sm"><svg><use href="#i-up"/></svg>Foto seç</span>
+          <label class="btn btn-primary btn-sm" for="drFoto"><svg><use href="#i-up"/></svg>Ürün fotoğrafı yükle</label>
           <button class="btn btn-ghost btn-sm" type="button" id="drFotoSil" hidden>Kaldır</button>
         </div>
       </div>
-      <input type="file" accept="image/*" id="drFoto" aria-label="Fotoğraf seç">
+      <input type="file" accept="image/*" id="drFoto" aria-label="Ürün fotoğrafı yükle">
     </div>
     <div class="field"><label for="fAd">Ürün adı</label><input id="fAd" data-f="ad" placeholder="Örn. Dantel detaylı sütyen"></div>
     <div class="grid-3">
