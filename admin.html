@@ -214,6 +214,23 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 .lines .tot{background:var(--panel-2);font-weight:500;}
 .lines .tot span:last-child{color:var(--bordo);font-family:'Bodoni Moda',serif;font-size:1.05rem;}
 
+/* ── Yayın anahtarı ve sıralama ───────────────────────────────── */
+.yayin{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel-2);cursor:pointer;}
+.yayin input{position:absolute;opacity:0;width:0;height:0;}
+.yayin-anahtar{position:relative;flex:none;width:42px;height:24px;border-radius:100px;background:var(--line-2);transition:background .2s;}
+.yayin-anahtar::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s;}
+.yayin input:checked + .yayin-anahtar{background:var(--ok);}
+.yayin input:checked + .yayin-anahtar::after{transform:translateX(18px);}
+.yayin b{display:block;font-weight:500;font-size:.88rem;}
+.yayin small{display:block;color:var(--mute);font-size:.74rem;}
+.sira-h{width:1%;}
+.sira{display:flex;flex-direction:column;gap:.1rem;}
+.sira button{width:26px;height:22px;border-radius:6px;color:var(--mute);display:grid;place-items:center;transition:background .12s,color .12s;}
+.sira button:hover{background:var(--rose-3);color:var(--bordo);}
+.sira button[disabled]{opacity:.25;cursor:default;}
+.sira svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;}
+@media (max-width:760px){.sira{flex-direction:row;} .table td.sira-td{grid-column:1/-1;order:9;}}
+
 /* ── Toast ────────────────────────────────────────────────────── */
 .toast{position:fixed;left:50%;bottom:1.4rem;transform:translate(-50%,20px);z-index:120;opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility .2s;
   background:var(--ink);color:#fff;padding:.7rem 1.1rem;border-radius:100px;font-size:.85rem;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:calc(100vw - 2rem);}
@@ -273,6 +290,9 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4"/><path d="M6 10l6-6 6 6"/><path d="M4 20h16"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-up2" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+  <symbol id="i-down2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
 </svg>
 
 <div class="app" id="app" hidden>
@@ -281,6 +301,7 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     <button class="nav-link" data-view="genel" aria-current="page"><svg><use href="#i-home"/></svg><span class="t">Genel bakış</span></button>
     <button class="nav-link" data-view="urunler"><svg><use href="#i-box"/></svg><span class="t">Ürünler</span><span class="pill" id="navUrun">0</span></button>
     <button class="nav-link" data-view="siparisler"><svg><use href="#i-bag"/></svg><span class="t">Siparişler</span><span class="pill n" id="navSiparis" hidden>0</span></button>
+    <button class="nav-link" data-view="ayarlar"><svg><use href="#i-cog"/></svg><span class="t">Ayarlar</span></button>
     <a class="nav-link" href="index.html" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg><span class="t">Vitrini aç</span></a>
     <div class="nav-sep"></div>
     <div class="nav-user">
@@ -335,9 +356,30 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       </div>
       <div class="card tbl-wrap">
         <table class="table" id="urunTablo">
-          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok (XS · S · M · L · XL)</th><th class="r">Fiyat</th></tr></thead>
+          <thead><tr><th class="sira-h">Sıra</th><th>Ürün</th><th>Kategori</th><th>Stok (XS · S · M · L · XL)</th><th class="r">Fiyat</th></tr></thead>
           <tbody id="urunBody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- AYARLAR -->
+    <section id="view-ayarlar" hidden>
+      <div class="topbar">
+        <div><h1>Ayarlar</h1><p>Kargo ücreti ve ücretsiz kargo eşiği</p></div>
+      </div>
+      <div class="card" style="max-width:520px">
+        <div class="card-h"><h2>Kargo</h2></div>
+        <form class="card-b" id="kargoForm" style="display:flex;flex-direction:column;gap:1rem">
+          <div class="grid-2">
+            <div class="field"><label for="kUcret">Kargo ücreti (₺)</label><input id="kUcret" type="number" min="0" step="0.01" placeholder="79.90"></div>
+            <div class="field"><label for="kEsik">Bu tutar ve üzeri bedava (₺)</label><input id="kEsik" type="number" min="0" step="1" placeholder="1500"></div>
+          </div>
+          <p style="font-size:.8rem;color:var(--mute)">Kargo ücretini 0 yaparsan hiç kargo alınmaz. Eşiği 0 yaparsan hiçbir sipariş bedava olmaz.</p>
+          <div style="display:flex;gap:.6rem;align-items:center">
+            <button class="btn btn-primary" type="submit">Kaydet</button>
+            <span class="dr-f durum" id="kargoDurum" style="padding:0;border:0;background:none"></span>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -384,12 +426,18 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       </div>
       <input type="file" accept="image/*" id="drFoto" aria-label="Ürün fotoğrafı yükle">
     </div>
+    <label class="yayin" id="yayinKutu">
+      <input type="checkbox" id="fAktif" data-f="aktif">
+      <span class="yayin-anahtar"></span>
+      <span><b>Sitede yayında</b><small>Kapatırsan ürün silinmez, sadece vitrinde görünmez.</small></span>
+    </label>
     <div class="field"><label for="fAd">Ürün adı</label><input id="fAd" data-f="ad" placeholder="Örn. Dantel detaylı sütyen"></div>
     <div class="grid-3">
       <div class="field"><label for="fCat">Kategori</label><select id="fCat" data-f="cat"></select></div>
-      <div class="field"><label for="fFiyat">Fiyat (₺)</label><input id="fFiyat" data-f="fiyat" type="number" min="0" step="1" placeholder="0"></div>
-      <div class="field"><label for="fTag">Rozet</label><select id="fTag" data-f="tag"></select></div>
+      <div class="field"><label for="fFiyat">Satış fiyatı (₺)</label><input id="fFiyat" data-f="fiyat" type="number" min="0" step="1" placeholder="0"></div>
+      <div class="field"><label for="fEski">İndirim öncesi (₺)</label><input id="fEski" data-f="eskiFiyat" type="number" min="0" step="1" placeholder="boş = indirim yok"></div>
     </div>
+    <div class="field"><label for="fTag">Rozet</label><select id="fTag" data-f="tag"></select></div>
     <div class="field"><label for="fAcik">Açıklama</label><textarea id="fAcik" data-f="aciklama" placeholder="Kumaş, kalıp, bakım bilgisi"></textarea></div>
     <div>
       <div class="sizes-h"><label>Beden stokları</label><span class="pill" id="drToplam">0 adet</span></div>
@@ -409,6 +457,11 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
   <div class="dr-h"><h2 id="sdBaslik">Sipariş</h2><button class="btn btn-ghost btn-icon" id="sdKapat" aria-label="Kapat"><svg><use href="#i-x"/></svg></button></div>
   <div class="dr-b">
     <div class="field"><label for="sdDurum">Durum</label><select id="sdDurum"></select></div>
+    <div class="grid-2" id="sdKargo">
+      <div class="field"><label for="sdFirma">Kargo firması</label>
+        <select id="sdFirma"><option value="">Seç</option><option>Yurtiçi Kargo</option><option>Aras Kargo</option><option>MNG Kargo</option><option>PTT Kargo</option><option>Sürat Kargo</option><option>Trendyol Express</option><option>Hepsijet</option><option>Diğer</option></select></div>
+      <div class="field"><label for="sdTakip">Takip numarası</label><input id="sdTakip" type="text" placeholder="Kargo fişindeki numara"></div>
+    </div>
     <dl class="kv" id="sdMusteri"></dl>
     <ul class="lines" id="sdSatirlar"></ul>
   </div>
@@ -496,12 +549,15 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       art: (u && CIZIMLER.indexOf(u.art) > -1) ? u.art : CIZIMLER[0],
       foto: (u && typeof u.foto === 'string') ? u.foto : '',
       aciklama: (u && u.aciklama) || '', stok: s,
-      sira: (u && isFinite(u.sira)) ? Number(u.sira) : 0
+      sira: (u && isFinite(u.sira)) ? Number(u.sira) : 0,
+      eskiFiyat: (u && u.eski_fiyat !== null && u.eski_fiyat !== undefined && u.eski_fiyat !== '' && isFinite(u.eski_fiyat)) ? Number(u.eski_fiyat)
+               : ((u && u.eskiFiyat !== null && u.eskiFiyat !== undefined && u.eskiFiyat !== '' && isFinite(u.eskiFiyat)) ? Number(u.eskiFiyat) : null),
+      aktif: !(u && u.aktif === false)
     };
   }
   function satirYap(u){
-    return { id:u.id, ad:u.ad, cat:u.cat, tag:u.tag, fiyat:u.fiyat, art:u.art, foto:u.foto,
-             aciklama:u.aciklama, stok:u.stok, sira:u.sira || 0, updated_at:new Date().toISOString() };
+    return { id:u.id, ad:u.ad, cat:u.cat, tag:u.tag, fiyat:u.fiyat, eski_fiyat:u.eskiFiyat, art:u.art, foto:u.foto,
+             aciklama:u.aciklama, stok:u.stok, sira:u.sira || 0, aktif:u.aktif !== false, updated_at:new Date().toISOString() };
   }
   function hataMetni(err){
     var m = (err && err.message) ? err.message : String(err || '');
@@ -544,7 +600,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 
   /* ── Görünüm geçişi ─────────────────────────────────────────── */
   function goster(view){
-    ['genel','urunler','siparisler'].forEach(function(v){ $('view-' + v).hidden = v !== view; });
+    ['genel','urunler','siparisler','ayarlar'].forEach(function(v){ $('view-' + v).hidden = v !== view; });
+    if (view === 'ayarlar') ayarlariYukle();
     document.querySelectorAll('.nav-link[data-view]').forEach(function(b){
       if (b.getAttribute('data-view') === view) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
     });
@@ -668,16 +725,50 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       if (katFiltre && u.cat !== katFiltre) return false;
       return !q || (u.ad + ' ' + u.cat + ' ' + u.tag).toLocaleLowerCase('tr').indexOf(q) > -1;
     });
-    $('urunBody').innerHTML = gorunen.length ? gorunen.map(function(u){
-      return '<tr data-urun="' + u.id + '">' +
-        '<td class="full"><div class="pname">' + thumbHTML(u) + '<div><b>' + kacis(u.ad || 'Adsız ürün') + '</b><small>' + (u.tag ? kacis(u.tag) + ' · ' : '') + u.id + '</small></div></div></td>' +
+    var siraliMi = !q && !katFiltre;   /* sıralama yalnızca tam listede anlamlı */
+    $('urunBody').innerHTML = gorunen.length ? gorunen.map(function(u, i){
+      var indirim = u.fiyat !== null && u.eskiFiyat !== null && u.eskiFiyat > u.fiyat;
+      return '<tr data-urun="' + u.id + '"' + (u.aktif ? '' : ' style="opacity:.55"') + '>' +
+        '<td class="sira-td"><span class="sira">' +
+          '<button type="button" data-sira="-1" aria-label="Yukarı"' + (!siraliMi || i === 0 ? ' disabled' : '') + '><svg><use href="#i-up2"/></svg></button>' +
+          '<button type="button" data-sira="1" aria-label="Aşağı"' + (!siraliMi || i === gorunen.length - 1 ? ' disabled' : '') + '><svg><use href="#i-down2"/></svg></button>' +
+        '</span></td>' +
+        '<td class="full"><div class="pname">' + thumbHTML(u) + '<div><b>' + kacis(u.ad || 'Adsız ürün') + '</b><small>' +
+          (u.aktif ? '' : '<span class="pill warn" style="margin-right:.4rem">Yayında değil</span>') +
+          (u.tag ? kacis(u.tag) + ' · ' : '') + (indirim ? '%' + Math.round((1 - u.fiyat / u.eskiFiyat) * 100) + ' indirim · ' : '') + u.id + '</small></div></div></td>' +
         '<td><span class="pill">' + kacis(u.cat) + '</span></td>' +
         '<td class="full">' + stokHTML(u) + '</td>' +
-        '<td class="r price">' + para(u.fiyat) + '</td></tr>';
-    }).join('') : '<tr><td colspan="4" class="empty full">' + (urunler.length ? 'Aramaya uyan ürün yok.' : 'Henüz ürün yok. Sağ üstten "Yeni ürün" ile başla ya da "Demo yükle".') + '</td></tr>';
+        '<td class="r price">' + (indirim ? '<s style="color:var(--mute);font-size:.8em">' + para(u.eskiFiyat) + '</s> ' : '') + para(u.fiyat) + '</td></tr>';
+    }).join('') : '<tr><td colspan="5" class="empty full">' + (urunler.length ? 'Aramaya uyan ürün yok.' : 'Henüz ürün yok. Sağ üstten "Yeni ürün" ile başla ya da "Demo yükle".') + '</td></tr>';
     ozet();
   }
-  $('urunBody').addEventListener('click', function(e){ var tr = e.target.closest('[data-urun]'); if (tr) urunAc(tr.getAttribute('data-urun')); });
+  $('urunBody').addEventListener('click', function(e){
+    var sb2 = e.target.closest('[data-sira]');
+    if (sb2){
+      e.stopPropagation();
+      if (sb2.disabled) return;
+      var tr = sb2.closest('[data-urun]');
+      siraDegistir(tr.getAttribute('data-urun'), Number(sb2.getAttribute('data-sira')));
+      return;
+    }
+    var tr2 = e.target.closest('[data-urun]'); if (tr2) urunAc(tr2.getAttribute('data-urun'));
+  });
+
+  /* Sıralama: listedeki komşusuyla yer değiştirir, sira alanlarını yeniden numaralar */
+  function siraDegistir(id, yon){
+    var i = -1;
+    for (var k = 0; k < urunler.length; k++) if (urunler[k].id === id) i = k;
+    var j = i + yon;
+    if (i < 0 || j < 0 || j >= urunler.length) return;
+    var t = urunler[i]; urunler[i] = urunler[j]; urunler[j] = t;
+    urunler.forEach(function(u, n){ u.sira = n + 1; });
+    urunleriCiz();
+    sb.from('urunler').upsert([satirYap(urunler[i]), satirYap(urunler[j])]).then(function(r){
+      if (r.error) toast('Sıra kaydedilemedi: ' + hataMetni(r.error), true);
+    });
+    /* Diğerlerinin numarası da tutarlı kalsın (arka planda, sessizce) */
+    sb.from('urunler').upsert(urunler.map(satirYap)).then(function(){});
+  }
   $('ara').addEventListener('input', urunleriCiz);
   $('katChips').innerHTML += KATEGORILER.map(function(k){ return '<button class="chip" data-kat="' + k + '">' + k + '</button>'; }).join('');
   $('katChips').addEventListener('click', function(e){
@@ -698,6 +789,7 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
   function drDoldur(u){
     $('drBaslik').textContent = u.ad || 'Yeni ürün';
     $('fAd').value = u.ad; $('fCat').value = u.cat; $('fFiyat').value = u.fiyat === null ? '' : u.fiyat;
+    $('fEski').value = u.eskiFiyat === null ? '' : u.eskiFiyat; $('fAktif').checked = u.aktif !== false;
     $('fTag').value = u.tag; $('fAcik').value = u.aciklama; $('fArt').value = u.art;
     BEDENLER.forEach(function(b){ var i = drawer.querySelector('[data-stok="' + b + '"]'); i.value = u.stok[b]; i.classList.toggle('z', u.stok[b] === 0); });
     $('drToplam').textContent = toplamStok(u) + ' adet';
@@ -725,6 +817,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     var f = e.target.getAttribute('data-f'), b = e.target.getAttribute('data-stok');
     if (f){
       if (f === 'fiyat') aktif.fiyat = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
+      else if (f === 'eskiFiyat') aktif.eskiFiyat = e.target.value === '' ? null : Math.max(0, Number(e.target.value));
+      else if (f === 'aktif') aktif.aktif = e.target.checked;
       else aktif[f] = e.target.value;
       if (f === 'ad') $('drBaslik').textContent = aktif.ad || 'Yeni ürün';
       if (f === 'art' && !aktif.foto) $('drThumb').innerHTML = '<svg><use href="#art-' + aktif.art + '"/></svg>';
@@ -893,6 +987,9 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       aktifSip = s;
       $('sdBaslik').textContent = 'Sipariş #' + s.id;
       $('sdDurum').value = s.durum;
+      $('sdFirma').value = s.kargo_firma || '';
+      if ($('sdFirma').value !== (s.kargo_firma || '')){ /* listede olmayan firma */ $('sdFirma').value = s.kargo_firma ? 'Diğer' : ''; }
+      $('sdTakip').value = s.takip_no || '';
       $('sdMusteri').innerHTML =
         '<dt>Tarih</dt><dd>' + tarih(s.created_at, true) + '</dd>' +
         '<dt>Müşteri</dt><dd>' + kacis(s.ad_soyad) + (s.eposta ? '<br><small style="color:var(--mute)">' + kacis(s.eposta) + '</small>' : '') + '</dd>' +
@@ -901,7 +998,9 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
         (s.musteri_notu ? '<dt>Not</dt><dd>' + kacis(s.musteri_notu) + '</dd>' : '');
       $('sdSatirlar').innerHTML = (s.siparis_satirlari || []).map(function(x){
         return '<li><span>' + kacis(x.urun_ad || 'Ürün') + ' · ' + kacis(x.beden) + ' × ' + x.adet + '</span><span>' + (x.fiyat === null ? '—' : para(Number(x.fiyat) * x.adet)) + '</span></li>';
-      }).join('') + '<li class="tot"><span>Toplam</span><span>' + para(s.toplam) + '</span></li>';
+      }).join('') +
+        (Number(s.kargo_ucreti) > 0 ? '<li><span>Kargo</span><span>' + para(s.kargo_ucreti) + '</span></li>' : '<li><span>Kargo</span><span>Bedava</span></li>') +
+        '<li class="tot"><span>Toplam</span><span>' + para(s.toplam) + '</span></li>';
       $('sdNot').textContent = '';
       $('sipDrawer').classList.add('on'); scrim.classList.add('on');
     };
@@ -917,6 +1016,39 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       var pill = $('sipBody').querySelector('[data-sip="' + s.id + '"] .pill');
       if (pill){ pill.className = 'pill ' + (DURUM_SINIF[yeni] || ''); pill.textContent = DURUMLAR[yeni]; }
       siparisRozeti(); toast('Sipariş #' + s.id + ' → ' + DURUMLAR[yeni]);
+      if (yeni === 'iptal') { yukle().then(urunleriCiz); }   /* stok geri geldi, tabloyu tazele */
+    });
+  });
+
+  /* Kargo firması / takip no — yazınca kaydedilir */
+  var kargoZaman = null;
+  function kargoKaydet(){
+    if (!aktifSip) return;
+    var s = aktifSip, firma = $('sdFirma').value, takip = $('sdTakip').value.trim();
+    sb.from('siparisler').update({ kargo_firma: firma, takip_no: takip }).eq('id', s.id).then(function(r){
+      if (r.error){ $('sdNot').textContent = hataMetni(r.error); $('sdNot').className = 'durum err'; return; }
+      s.kargo_firma = firma; s.takip_no = takip;
+      $('sdNot').textContent = 'Kargo bilgisi kaydedildi'; $('sdNot').className = 'durum ok';
+    });
+  }
+  $('sdFirma').addEventListener('change', kargoKaydet);
+  $('sdTakip').addEventListener('input', function(){ clearTimeout(kargoZaman); kargoZaman = setTimeout(kargoKaydet, 600); });
+
+  /* ── Ayarlar: kargo ─────────────────────────────────────────── */
+  function ayarlariYukle(){
+    sb.from('ayarlar').select('deger').eq('anahtar', 'kargo').maybeSingle().then(function(r){
+      var d = (r.data && r.data.deger) || {};
+      $('kUcret').value = d.ucret !== undefined ? d.ucret : '';
+      $('kEsik').value = d.bedava_esik !== undefined ? d.bedava_esik : '';
+    });
+  }
+  $('kargoForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var deger = { ucret: Math.max(0, Number($('kUcret').value) || 0), bedava_esik: Math.max(0, Number($('kEsik').value) || 0) };
+    var d = $('kargoDurum'); d.textContent = 'Kaydediliyor…'; d.className = 'durum';
+    sb.from('ayarlar').upsert({ anahtar: 'kargo', deger: deger, updated_at: new Date().toISOString() }).then(function(r){
+      if (r.error){ d.textContent = hataMetni(r.error); d.className = 'durum err'; return; }
+      d.textContent = 'Kaydedildi · sitede geçerli'; d.className = 'durum ok'; toast('Kargo ayarı güncellendi');
     });
   });
 })();

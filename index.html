@@ -809,6 +809,21 @@ img.cart-thumb{object-fit:cover;}
 .siparis-ust span{color:var(--ink-mute);font-size:.72rem;}
 .siparis ul{list-style:none;margin:.4rem 0 0;padding:0;color:var(--ink-soft);font-size:.78rem;}
 .siparis-alt{margin-top:.4rem;color:var(--accent);}
+.siparis-kargo{margin-top:.35rem;font-size:.74rem;color:var(--ink-soft);}
+.siparis-kargo b{font-weight:500;color:var(--ink);}
+.hesap-form{display:flex;flex-direction:column;gap:.8rem;padding:.6rem 0 1rem;border-bottom:1px solid var(--line);}
+.hesap-form textarea{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);
+  padding:.8rem .95rem;color:var(--ink);font-family:inherit;font-size:var(--step-0);resize:vertical;
+}
+.hesap-form textarea:focus{outline:none;border-color:var(--accent);}
+.field label small{text-transform:none;letter-spacing:0;font-size:.62rem;}
+.price.indirim s{color:var(--ink-mute);font-size:.82em;margin-right:.3em;}
+.tag-indirim{background:var(--rose);border-color:var(--rose);color:var(--rose-ink);}
+.kargo-not{font-size:.72rem;color:var(--ink-mute);margin-top:.5rem;}
+.kargo-not b{color:var(--accent);font-weight:500;}
+.checkout-satir{display:flex;justify-content:space-between;font-size:var(--step--1);color:var(--ink-soft);}
+.checkout-satir.bedava span:last-child{color:var(--accent);}
 .durum{margin-left:auto;font-style:normal;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .55rem;border-radius:100px;background:var(--surface-2);color:var(--ink-soft);}
 .durum-kargoda{background:#EAF2FA;color:#2F5D8C;}
 .durum-teslim{background:#E8F4EC;color:#2E7D52;}
@@ -1220,6 +1235,18 @@ img.cart-thumb{object-fit:cover;}
         <a href="#" id="profSiparisLink">Siparişlerim <em id="profSiparis">—</em></a>
         <div class="siparis-liste" id="siparisListe" hidden></div>
         <a href="#" id="profFavLink">Favorilerim <em id="profFav">0 ürün</em></a>
+        <a href="#" id="profBilgiLink">Hesap bilgilerim <em>Düzenle</em></a>
+        <form class="hesap-form" id="hesapForm" hidden>
+          <div class="row-2">
+            <div class="field"><label for="hAd">Ad</label><input id="hAd" type="text" required autocomplete="given-name"></div>
+            <div class="field"><label for="hSoyad">Soyad</label><input id="hSoyad" type="text" required autocomplete="family-name"></div>
+          </div>
+          <div class="field"><label for="hTel">Telefon</label><input id="hTel" type="tel" autocomplete="tel" placeholder="05XX XXX XX XX"></div>
+          <div class="field"><label for="hAdres">Teslimat adresi</label><textarea id="hAdres" rows="3" placeholder="Mahalle, sokak, no, daire · ilçe / il"></textarea></div>
+          <div class="field"><label for="hPass">Yeni şifre <small>(değiştirmeyeceksen boş bırak)</small></label><input id="hPass" type="password" minlength="8" autocomplete="new-password" placeholder="En az 8 karakter"></div>
+          <button class="btn btn-primary btn-block" type="submit">Kaydet</button>
+          <p class="msg" data-msg></p>
+        </form>
       </div>
       <button class="btn btn-ghost btn-block" type="button" id="logoutBtn">Çıkış yap</button>
     </div>
@@ -1280,7 +1307,6 @@ img.cart-thumb{object-fit:cover;}
       <span class="price" id="urunPrice">— ₺</span>
       <span class="stok-not" id="urunStok" hidden></span>
       <p id="urunDesc">Ürün açıklaması buraya gelecek: kumaş, kalıp, bakım bilgisi. Şimdilik taslak metin.</p>
-      <span class="swatches"><i class="sw"></i><i class="sw"></i><i class="sw"></i></span>
       <span class="sizes" id="urunSizes" role="group" aria-label="Beden seç"></span>
       <span class="urun-hint" id="urunHint" hidden>Önce bir beden seç</span>
       <span class="urun-act">
@@ -1411,6 +1437,7 @@ img.cart-thumb{object-fit:cover;}
       cat: u.cat || '',
       tag: u.tag || '',
       fiyat: (u.fiyat !== null && u.fiyat !== '' && isFinite(u.fiyat)) ? Number(u.fiyat) : null,
+      eskiFiyat: (u.eski_fiyat !== null && u.eski_fiyat !== undefined && u.eski_fiyat !== '' && isFinite(u.eski_fiyat)) ? Number(u.eski_fiyat) : null,
       art: u.art || 'sutyen',
       foto: typeof u.foto === 'string' ? u.foto : '',
       aciklama: u.aciklama || '',
@@ -1454,6 +1481,17 @@ img.cart-thumb{object-fit:cover;}
   }
   function fiyatYazi(p){
     return p.fiyat === null ? '— ₺' : p.fiyat.toLocaleString('tr-TR') + ' ₺';
+  }
+  /* İndirimli mi? Eski fiyat girilmiş ve yeni fiyattan büyükse */
+  function indirimli(p){ return p.fiyat !== null && p.eskiFiyat !== null && p.eskiFiyat > p.fiyat; }
+  function indirimYuzde(p){ return Math.round((1 - p.fiyat / p.eskiFiyat) * 100); }
+  function fiyatHTML(p){
+    if (!indirimli(p)) return '<span class="price">' + fiyatYazi(p) + '</span>';
+    return '<span class="price indirim"><s>' + p.eskiFiyat.toLocaleString('tr-TR') + ' ₺</s> ' + fiyatYazi(p) + '</span>';
+  }
+  function rozetYazi(p){
+    if (p.tag) return p.tag;
+    return indirimli(p) ? '%' + indirimYuzde(p) + ' indirim' : '';
   }
   function adYazi(p, i){
     return p.ad || ('Ürün ' + (i + 1));
@@ -1519,7 +1557,7 @@ img.cart-thumb{object-fit:cover;}
         ' data-cat="' + kacis(p.cat) + '"' +
         (p.tag === 'Çok satan' ? ' data-best="1"' : '') + '>' +
         '<div class="card-media">' +
-          (p.tag ? '<span class="tag">' + kacis(p.tag) + '</span>' : '') +
+          (rozetYazi(p) ? '<span class="tag' + (indirimli(p) && !p.tag ? ' tag-indirim' : '') + '">' + kacis(rozetYazi(p)) + '</span>' : '') +
           favHTML(p) +
           gorselHTML(p) +
           (p.foto ? '' : '<span class="demo-tag">Demo görsel</span>') +
@@ -1529,8 +1567,7 @@ img.cart-thumb{object-fit:cover;}
           '<span class="card-title">' +
             (p.ad ? kacis(p.ad) : '<span class="slot-line">Ürün adı</span>') +
           '</span>' +
-          '<span class="price">' + fiyatYazi(p) + '</span>' +
-          '<span class="swatches"><i class="sw"></i><i class="sw"></i><i class="sw"></i></span>' +
+          fiyatHTML(p) +
           '<span class="sizes" role="group" aria-label="Beden seç">' + sizesHTML(p) + '</span>' +
           '<span class="size-hint">Önce bir beden seç</span>' +
           stokNotu(p) +
@@ -1620,7 +1657,8 @@ img.cart-thumb{object-fit:cover;}
     drawerBody.innerHTML =
       '<ul class="cart-list">' + rows + '</ul>' +
       '<div class="cart-sum"><span>Ara toplam</span><span>' +
-        (hepsiFiyatli ? toplam.toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</span></div>';
+        (hepsiFiyatli ? toplam.toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</span></div>' +
+      (hepsiFiyatli && typeof kargoNotuHTML === 'function' ? kargoNotuHTML(toplam) : '');
   }
 
   drawerBody.addEventListener('click', function(e){
@@ -1758,13 +1796,24 @@ img.cart-thumb{object-fit:cover;}
     el.textContent = metin || '';
   }
 
+  function profilGoster(session){
+    var ad = ((profil.ad || '') + ' ' + (profil.soyad || '')).trim() || session.user.email;
+    setSignedIn(true, session.user.email, ad);
+  }
+
   function oturumUygula(session){
     oturum = session;
     if (session && session.user){
       var m = session.user.user_metadata || {};
-      profil = { ad: m.ad || '', soyad: m.soyad || '', telefon: m.telefon || '' };
-      var ad = (profil.ad + ' ' + profil.soyad).trim() || session.user.email;
-      setSignedIn(true, session.user.email, ad);
+      profil = { ad: m.ad || '', soyad: m.soyad || '', telefon: m.telefon || '', adres: '' };
+      profilGoster(session);
+      /* Profil tablosundaki güncel bilgiler (adres dahil) */
+      sb.from('profiller').select('ad, soyad, telefon, adres').eq('user_id', session.user.id).maybeSingle().then(function(r){
+        if (r.data){
+          profil = { ad: r.data.ad || profil.ad, soyad: r.data.soyad || profil.soyad, telefon: r.data.telefon || profil.telefon, adres: r.data.adres || '' };
+          profilGoster(session);
+        }
+      });
       siparisleriYukle();
       if (girisSonraSepet){ girisSonraSepet = false; closeAll(); if (cart.length) openCart(); }
     } else {
@@ -1772,6 +1821,42 @@ img.cart-thumb{object-fit:cover;}
       setSignedIn(false);
     }
   }
+
+  /* Hesap bilgilerim */
+  document.getElementById('profBilgiLink').addEventListener('click', function(e){
+    e.preventDefault();
+    var f = document.getElementById('hesapForm');
+    f.hidden = !f.hidden;
+    if (!f.hidden && profil){
+      document.getElementById('hAd').value = profil.ad; document.getElementById('hSoyad').value = profil.soyad;
+      document.getElementById('hTel').value = profil.telefon; document.getElementById('hAdres').value = profil.adres || '';
+      document.getElementById('hPass').value = '';
+      mesaj(f, '');
+    }
+  });
+  document.getElementById('hesapForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var form = this;
+    if (!sb || !oturum) return;
+    var yeni = { ad: document.getElementById('hAd').value.trim(), soyad: document.getElementById('hSoyad').value.trim(),
+                 telefon: document.getElementById('hTel').value.trim(), adres: document.getElementById('hAdres').value.trim() };
+    var pass = document.getElementById('hPass').value;
+    mesaj(form, 'Kaydediliyor…');
+    sb.from('profiller').upsert({ user_id: oturum.user.id, eposta: oturum.user.email, ad: yeni.ad, soyad: yeni.soyad, telefon: yeni.telefon, adres: yeni.adres })
+      .then(function(r){
+        if (r.error){ mesaj(form, hataMetni(r.error), true); return null; }
+        profil = yeni; profilGoster(oturum);
+        var meta = { data: { ad: yeni.ad, soyad: yeni.soyad, telefon: yeni.telefon } };
+        if (pass) meta.password = pass;
+        return sb.auth.updateUser(meta);
+      })
+      .then(function(r){
+        if (r === null) return;
+        if (r && r.error){ mesaj(form, 'Bilgiler kaydedildi ama şifre değişmedi: ' + hataMetni(r.error), true); return; }
+        mesaj(form, pass ? 'Bilgilerin ve şifren güncellendi.' : 'Bilgilerin güncellendi.');
+        document.getElementById('hPass').value = '';
+      });
+  });
 
   if (sb){
     sb.auth.getSession().then(function(r){ oturumUygula(r.data ? r.data.session : null); });
@@ -1867,7 +1952,7 @@ img.cart-thumb{object-fit:cover;}
   function siparisleriYukle(){
     if (!sb || !oturum) return;
     sb.from('siparisler')
-      .select('id, durum, toplam, created_at, siparis_satirlari(urun_ad, beden, adet, fiyat)')
+      .select('id, durum, toplam, ara_toplam, kargo_ucreti, kargo_firma, takip_no, created_at, siparis_satirlari(urun_ad, beden, adet, fiyat)')
       .order('created_at', { ascending:false }).limit(20)
       .then(function(r){
         var liste = document.getElementById('siparisListe');
@@ -1885,7 +1970,9 @@ img.cart-thumb{object-fit:cover;}
             '<div class="siparis-ust"><b>#' + s.id + '</b><span>' + tarih + '</span>' +
               '<em class="durum durum-' + kacis(s.durum) + '">' + (DURUM_ADI[s.durum] || s.durum) + '</em></div>' +
             '<ul>' + satirlar + '</ul>' +
-            '<div class="siparis-alt">' + Number(s.toplam).toLocaleString('tr-TR') + ' ₺</div>' +
+            '<div class="siparis-alt">' + Number(s.toplam).toLocaleString('tr-TR') + ' ₺' +
+              (Number(s.kargo_ucreti) > 0 ? ' <small>(kargo ' + Number(s.kargo_ucreti).toLocaleString('tr-TR') + ' ₺ dahil)</small>' : '') + '</div>' +
+            (s.takip_no ? '<div class="siparis-kargo">' + kacis(s.kargo_firma || 'Kargo') + ' · takip no <b>' + kacis(s.takip_no) + '</b></div>' : '') +
           '</div>';
         }).join('');
       });
@@ -2172,7 +2259,7 @@ img.cart-thumb{object-fit:cover;}
     donusAlani = alan;
     document.getElementById('peekCat').textContent = p.cat + (p.tag ? ' · ' + p.tag : '');
     document.getElementById('peekTitle').textContent = adYazi(p, i);
-    document.getElementById('peekPrice').textContent = fiyatYazi(p);
+    document.getElementById('peekPrice').innerHTML = fiyatHTML(p).replace(/^<span[^>]*>|<\/span>$/g, '');
 
     /* Açıklamanın kısa özeti — 140 karakterde kelime bölmeden kesilir */
     var metin = (p.aciklama || '').trim();
@@ -2209,7 +2296,8 @@ img.cart-thumb{object-fit:cover;}
     document.getElementById('urunCat').textContent = p.cat;
     document.getElementById('urunTitle').textContent = adYazi(p, aktifUrun);
     document.getElementById('urunTag').textContent = p.tag || '';
-    document.getElementById('urunPrice').textContent = fiyatYazi(p);
+    document.getElementById('urunPrice').innerHTML = fiyatHTML(p).replace(/^<span[^>]*>|<\/span>$/g, '');
+    document.getElementById('urunPrice').classList.toggle('indirim', indirimli(p));
     if (p.aciklama) document.getElementById('urunDesc').textContent = p.aciklama;
     var t = toplamStok(p);
     var sn = document.getElementById('urunStok');
@@ -2350,6 +2438,36 @@ img.cart-thumb{object-fit:cover;}
       .catch(function(){ return false; });
   }
 
+  /* ── Kargo ayarı (panelden) ─────────────────────────────────────── */
+  var KARGO = { ucret: 0, bedava_esik: 0 };
+  if (sb){
+    sb.from('ayarlar').select('deger').eq('anahtar', 'kargo').maybeSingle().then(function(r){
+      if (r.data && r.data.deger){
+        KARGO.ucret = Number(r.data.deger.ucret) || 0;
+        KARGO.bedava_esik = Number(r.data.deger.bedava_esik) || 0;
+        renderCart();
+      }
+    });
+  }
+  function kargoUcreti(araToplam){
+    if (!KARGO || !KARGO.ucret) return 0;
+    return araToplam >= KARGO.bedava_esik ? 0 : KARGO.ucret;
+  }
+  function sepetAraToplam(){
+    var toplam = 0, hepsiFiyatli = true;
+    cart.forEach(function(s){
+      var p = PRODUCTS[urunBul(s.id)];
+      if (!p || p.fiyat === null) hepsiFiyatli = false; else toplam += p.fiyat * s.adet;
+    });
+    return { toplam: toplam, hepsiFiyatli: hepsiFiyatli };
+  }
+  function kargoNotuHTML(araToplam){
+    if (!KARGO || !KARGO.ucret || !KARGO.bedava_esik) return '';
+    if (araToplam >= KARGO.bedava_esik) return '<p class="kargo-not"><b>Kargo bedava</b> — ' + KARGO.bedava_esik.toLocaleString('tr-TR') + ' ₺ eşiğini geçtin.</p>';
+    var kalan = KARGO.bedava_esik - araToplam;
+    return '<p class="kargo-not">Kargo ' + KARGO.ucret.toLocaleString('tr-TR') + ' ₺ · <b>' + kalan.toLocaleString('tr-TR') + ' ₺</b> daha ekle, kargo bedava olsun.</p>';
+  }
+
   /* ── Ödeme adımı ────────────────────────────────────────────────── */
   var odeBtn = document.getElementById('odeBtn');
 
@@ -2377,13 +2495,11 @@ img.cart-thumb{object-fit:cover;}
       return;
     }
 
-    var toplam = 0, hepsiFiyatli = true;
-    cart.forEach(function(s){
-      var p = PRODUCTS[urunBul(s.id)];
-      if (!p || p.fiyat === null) hepsiFiyatli = false; else toplam += p.fiyat * s.adet;
-    });
-    var adSoyad = profil ? (profil.ad + ' ' + profil.soyad).trim() : '';
-    var tel = profil ? profil.telefon : '';
+    var ara = sepetAraToplam();
+    var kargo = kargoUcreti(ara.toplam);
+    var adSoyad = profil ? ((profil.ad || '') + ' ' + (profil.soyad || '')).trim() : '';
+    var tel = profil ? (profil.telefon || '') : '';
+    var adres = profil ? (profil.adres || '') : '';
 
     drawerBody.classList.add('has-items');
     drawerBody.innerHTML =
@@ -2394,11 +2510,13 @@ img.cart-thumb{object-fit:cover;}
         '<div class="field"><label for="coTel">Telefon</label>' +
           '<input id="coTel" type="tel" required autocomplete="tel" placeholder="05XX XXX XX XX" value="' + kacis(tel) + '"></div>' +
         '<div class="field"><label for="coAdres">Adres</label>' +
-          '<textarea id="coAdres" required rows="3" placeholder="Mahalle, sokak, no, daire · ilçe / il"></textarea></div>' +
+          '<textarea id="coAdres" required rows="3" placeholder="Mahalle, sokak, no, daire · ilçe / il">' + kacis(adres) + '</textarea></div>' +
         '<div class="field"><label for="coNot">Sipariş notu (isteğe bağlı)</label>' +
           '<input id="coNot" type="text" placeholder="Kapıcıya bırakabilirsiniz…"></div>' +
-        '<div class="checkout-ozet"><span>' + sepetToplamAdet() + ' ürün</span>' +
-          '<b>' + (hepsiFiyatli ? toplam.toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</b></div>' +
+        '<div class="checkout-satir"><span>' + sepetToplamAdet() + ' ürün</span><span>' + (ara.hepsiFiyatli ? ara.toplam.toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</span></div>' +
+        '<div class="checkout-satir' + (kargo === 0 ? ' bedava' : '') + '"><span>Kargo</span><span>' + (kargo === 0 ? 'Bedava' : kargo.toLocaleString('tr-TR') + ' ₺') + '</span></div>' +
+        '<div class="checkout-ozet"><span>Toplam</span>' +
+          '<b>' + (ara.hepsiFiyatli ? (ara.toplam + kargo).toLocaleString('tr-TR') + ' ₺' : '— ₺') + '</b></div>' +
         '<p class="checkout-not">Ödeme altyapısı henüz bağlı değil: sipariş kaydedilir, ödeme sonra alınır.</p>' +
         '<button class="btn btn-primary btn-block" type="submit">Siparişi tamamla</button>' +
         '<button class="btn btn-ghost btn-block" type="button" id="coGeri">← Sepete dön</button>' +
@@ -2433,6 +2551,8 @@ img.cart-thumb{object-fit:cover;}
         return;
       }
       var no = r.data;
+      /* Son adres ve telefon bir sonraki siparişte hazır gelsin */
+      if (profil){ profil.adres = document.getElementById('coAdres').value.trim(); profil.telefon = document.getElementById('coTel').value.trim() || profil.telefon; }
       cart = []; sepetYaz(); renderCart();
       drawerBody.classList.add('has-items');
       drawerBody.innerHTML =
