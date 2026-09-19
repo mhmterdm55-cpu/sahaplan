@@ -219,6 +219,18 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 .toast.on{opacity:1;visibility:visible;transform:translate(-50%,0);}
 .toast.err{background:var(--err);}
 
+/* ── Onay penceresi ───────────────────────────────────────────── */
+.onay{position:fixed;inset:0;z-index:150;display:grid;place-items:center;padding:1rem;background:rgba(29,23,25,.45);backdrop-filter:blur(3px);
+  opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;}
+.onay.on{opacity:1;visibility:visible;}
+.onay-card{width:min(420px,100%);padding:1.6rem;display:flex;flex-direction:column;gap:.7rem;transform:translateY(10px) scale(.98);transition:transform .2s;}
+.onay.on .onay-card{transform:none;}
+.onay-ikon{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--err-bg);color:var(--err);font-size:1.4rem;font-weight:600;}
+.onay-ikon.rose{background:var(--rose-2);color:var(--bordo);}
+.onay-card h3{font-family:'Bodoni Moda',serif;font-weight:400;font-size:1.35rem;}
+.onay-card p{color:var(--ink-2);font-size:.9rem;}
+.onay-act{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.6rem;}
+
 /* ── Giriş kapısı ─────────────────────────────────────────────── */
 .kapi{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;place-items:center;padding:1rem;}
 .kapi-card{width:min(400px,100%);padding:2rem;display:flex;flex-direction:column;gap:1rem;}
@@ -404,6 +416,19 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 
 <div class="toast" id="toast" role="status"></div>
 
+<!-- ONAY PENCERESİ -->
+<div class="onay" id="onay" role="alertdialog" aria-modal="true" aria-labelledby="onayBaslik">
+  <div class="card onay-card">
+    <span class="onay-ikon" id="onayIkon">!</span>
+    <h3 id="onayBaslik">Emin misin?</h3>
+    <p id="onayMetin"></p>
+    <div class="onay-act">
+      <button class="btn btn-ghost" type="button" id="onayHayir">Vazgeç</button>
+      <button class="btn btn-danger" type="button" id="onayEvet">Sil</button>
+    </div>
+  </div>
+</div>
+
 <!-- GİRİŞ -->
 <div class="kapi" id="kapi">
   <form class="card kapi-card" id="kapiForm">
@@ -485,6 +510,29 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     if (k.indexOf('failed to fetch') > -1) return 'Bağlantı kurulamadı.';
     return m || 'Bir şeyler ters gitti.';
   }
+
+  /* ── Onay penceresi ────────────────────────────────────────── */
+  var onayCoz = null;
+  function onayla(baslik, metin, dugme, tehlikeli){
+    var kutu = $('onay');
+    $('onayBaslik').textContent = baslik;
+    $('onayMetin').textContent = metin;
+    $('onayEvet').textContent = dugme || 'Evet';
+    $('onayEvet').className = 'btn ' + (tehlikeli === false ? 'btn-primary' : 'btn-danger');
+    $('onayIkon').className = 'onay-ikon' + (tehlikeli === false ? ' rose' : '');
+    $('onayIkon').textContent = tehlikeli === false ? '?' : '!';
+    kutu.classList.add('on');
+    setTimeout(function(){ $('onayHayir').focus(); }, 60);
+    return new Promise(function(res){ onayCoz = res; });
+  }
+  function onayBitir(cevap){
+    $('onay').classList.remove('on');
+    if (onayCoz){ var f = onayCoz; onayCoz = null; f(cevap); }
+  }
+  $('onayEvet').addEventListener('click', function(){ onayBitir(true); });
+  $('onayHayir').addEventListener('click', function(){ onayBitir(false); });
+  $('onay').addEventListener('click', function(e){ if (e.target === this) onayBitir(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && $('onay').classList.contains('on')) onayBitir(false); });
 
   /* ── Toast ─────────────────────────────────────────────────── */
   var toastZ = null;
@@ -727,11 +775,13 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
   $('drSil').addEventListener('click', function(){
     if (!aktif) return;
     var u = aktif;
-    if (!confirm('"' + (u.ad || 'Adsız ürün') + '" silinsin mi? Sitede de kaybolur.')) return;
-    fotoSil(u.foto).then(function(){ return sb.from('urunler').delete().eq('id', u.id); }).then(function(r){
-      if (r && r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
-      urunler = urunler.filter(function(x){ return x.id !== u.id; });
-      aktif = null; clearTimeout(kayitZaman); panelKapat(); urunleriCiz(); toast('Ürün silindi');
+    onayla('Ürün silinecek', '"' + (u.ad || 'Adsız ürün') + '" kalıcı olarak silinecek ve siteden kaybolacak. Bu işlem geri alınamaz.', 'Evet, sil').then(function(ok){
+      if (!ok) return;
+      fotoSil(u.foto).then(function(){ return sb.from('urunler').delete().eq('id', u.id); }).then(function(r){
+        if (r && r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
+        urunler = urunler.filter(function(x){ return x.id !== u.id; });
+        aktif = null; clearTimeout(kayitZaman); panelKapat(); urunleriCiz(); toast('Ürün silindi');
+      });
     });
   });
 
@@ -757,33 +807,39 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
         var v = JSON.parse(okuyucu.result);
         var gelen = (Array.isArray(v) ? v : (v && v.urunler) || []).map(duzelt);
         if (!gelen.length) throw new Error('bos');
-        if (!confirm(gelen.length + ' ürün yüklensin mi? Aynı kimlikli ürünler üzerine yazılır.')) return;
-        sb.from('urunler').upsert(gelen.map(satirYap)).then(function(r){
-          if (r.error){ toast('Yüklenemedi: ' + hataMetni(r.error), true); return; }
-          yukle().then(function(){ urunleriCiz(); toast(gelen.length + ' ürün yüklendi'); });
+        onayla('Dosyadan yükle', gelen.length + ' ürün yüklenecek. Aynı kimlikli ürünler üzerine yazılır.', 'Yükle', false).then(function(ok){
+          if (!ok) return;
+          sb.from('urunler').upsert(gelen.map(satirYap)).then(function(r){
+            if (r.error){ toast('Yüklenemedi: ' + hataMetni(r.error), true); return; }
+            yukle().then(function(){ urunleriCiz(); toast(gelen.length + ' ürün yüklendi'); });
+          });
         });
       } catch (err){ toast('Dosya geçerli bir JSON değil', true); }
     };
     okuyucu.readAsText(dosya); e.target.value = '';
   });
   $('demoYukle').addEventListener('click', function(){
-    if (urunler.length && !confirm('24 taslak ürün eklensin mi? (Aynı kimlikli taslaklar üzerine yazılır.)')) return;
-    var t = DEMO.map(function(d, i){
-      var u = duzelt({ id:'demo' + (i + 1), art:d[0], cat:d[1], tag:d[2], ad:'Ürün ' + (i + 1), sira:i + 1 });
-      BEDENLER.forEach(function(b){ u.stok[b] = d[3].indexOf(b) > -1 ? 0 : 6; }); return u;
-    });
-    t[3].stok = { XS:1, S:1, M:1, L:0, XL:0 }; t[12].stok = { XS:0, S:1, M:1, L:0, XL:0 };
-    sb.from('urunler').upsert(t.map(satirYap)).then(function(r){
-      if (r.error){ toast('Yüklenemedi: ' + hataMetni(r.error), true); return; }
-      yukle().then(function(){ urunleriCiz(); toast('24 taslak ürün eklendi'); });
+    onayla('Demo ürünleri yükle', '24 taslak ürün eklenecek. Kendi ürünlerine dokunulmaz; aynı kimlikli eski taslaklar üzerine yazılır.', 'Yükle', false).then(function(ok){
+      if (!ok) return;
+      var t = DEMO.map(function(d, i){
+        var u = duzelt({ id:'demo' + (i + 1), art:d[0], cat:d[1], tag:d[2], ad:'Ürün ' + (i + 1), sira:i + 1 });
+        BEDENLER.forEach(function(b){ u.stok[b] = d[3].indexOf(b) > -1 ? 0 : 6; }); return u;
+      });
+      t[3].stok = { XS:1, S:1, M:1, L:0, XL:0 }; t[12].stok = { XS:0, S:1, M:1, L:0, XL:0 };
+      sb.from('urunler').upsert(t.map(satirYap)).then(function(r){
+        if (r.error){ toast('Yüklenemedi: ' + hataMetni(r.error), true); return; }
+        yukle().then(function(){ urunleriCiz(); toast('24 taslak ürün eklendi'); });
+      });
     });
   });
   $('hepsiniSil').addEventListener('click', function(){
-    if (!urunler.length) return;
-    if (!confirm('TÜM ürünler silinsin mi? Sitede de kaybolur, geri alınamaz.')) return;
-    Promise.all(urunler.map(function(u){ return fotoSil(u.foto); })).then(function(){ return sb.from('urunler').delete().neq('id', ''); }).then(function(r){
-      if (r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
-      urunler = []; urunleriCiz(); toast('Tüm ürünler silindi');
+    if (!urunler.length){ toast('Silinecek ürün yok'); return; }
+    onayla('Tüm ürünler silinecek', urunler.length + ' ürün ve fotoğrafları kalıcı olarak silinecek, site boş kalacak. Bu işlem geri alınamaz — önce "Dışa aktar" ile yedek almanı öneririm.', 'Hepsini sil').then(function(ok){
+      if (!ok) return;
+      Promise.all(urunler.map(function(u){ return fotoSil(u.foto); })).then(function(){ return sb.from('urunler').delete().neq('id', ''); }).then(function(r){
+        if (r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
+        urunler = []; urunleriCiz(); toast('Tüm ürünler silindi');
+      });
     });
   });
 
