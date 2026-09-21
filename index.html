@@ -167,6 +167,8 @@ p{margin:0;}
 .card{display:flex;flex-direction:column;gap:.8rem;cursor:pointer;}
 .card-media{position:relative;aspect-ratio:4/5;border-radius:var(--r);overflow:hidden;background:linear-gradient(168deg,rgba(217,138,146,.24),rgba(217,138,146,.07) 55%,#F6EEEF);display:grid;place-items:center;}
 .card-media img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.6,.2,1);}
+.card-media img.ikinci{position:absolute;inset:0;opacity:0;transition:opacity .45s ease,transform .7s cubic-bezier(.2,.6,.2,1);}
+@media (hover:hover){.card:hover .card-media img.ikinci{opacity:1;}}
 .card-media .art{padding:22% 24%;transition:transform .7s cubic-bezier(.2,.6,.2,1);}
 .card:hover .card-media img,.card:hover .card-media .art{transform:scale(1.04);}
 .tag{position:absolute;top:.75rem;left:.75rem;z-index:2;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;padding:.32rem .65rem;background:color-mix(in srgb,var(--bg) 88%,transparent);color:var(--ink);border-radius:2px;backdrop-filter:blur(6px);}
@@ -409,6 +411,11 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
 .urun-media .art{padding:16% 20%;}
 .urun-rozet{position:absolute;top:1rem;left:1rem;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;padding:.4rem .8rem;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(6px);border-radius:2px;color:var(--bordo);}
 .urun-rozet:empty{display:none;}
+.urun-thumbs{display:flex;gap:.6rem;margin-top:.8rem;overflow-x:auto;padding-bottom:.2rem;}
+.urun-thumbs button{flex:none;width:64px;aspect-ratio:4/5;border-radius:4px;overflow:hidden;border:1px solid var(--line);opacity:.7;transition:opacity .2s,border-color .2s;padding:0;}
+.urun-thumbs button img{width:100%;height:100%;object-fit:cover;display:block;}
+.urun-thumbs button:hover{opacity:1;}
+.urun-thumbs button[aria-current="true"]{opacity:1;border-color:var(--bordo);}
 .urun-copy{display:flex;flex-direction:column;gap:1.6rem;max-width:540px;padding-top:.3rem;}
 .urun-ust{display:flex;flex-direction:column;gap:.55rem;}
 .urun-copy h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:300;}
@@ -532,8 +539,8 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
 
 <section class="cats" id="kategoriler">
   <div class="wrap cats-in">
-    <a href="#urunler">Sütyen</a><a href="#urunler">Külot</a><a href="#urunler">Takım</a>
-    <a href="#urunler">Gecelik</a><a href="#urunler">Bornoz</a><a href="#urunler">Çorap</a>
+    <a href="#urunler" data-kat="Sütyen">Sütyen</a><a href="#urunler" data-kat="Külot">Külot</a><a href="#urunler" data-kat="Takım">Takım</a>
+    <a href="#urunler" data-kat="Gecelik">Gecelik</a><a href="#urunler" data-kat="Bornoz">Bornoz</a><a href="#urunler" data-kat="Çorap">Çorap</a>
   </div>
 </section>
 
@@ -551,7 +558,10 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
     <button class="chip" data-filter="Külot" aria-pressed="false">Külot</button>
     <button class="chip" data-filter="Takım" aria-pressed="false">Takım</button>
     <button class="chip" data-filter="Gecelik" aria-pressed="false">Gecelik</button>
+    <button class="chip" data-filter="Bornoz" aria-pressed="false">Bornoz</button>
+    <button class="chip" data-filter="Çorap" aria-pressed="false">Çorap</button>
     <button class="chip" data-filter="best" aria-pressed="false">Çok satan</button>
+    <button class="chip" data-filter="indirim" aria-pressed="false">İndirim</button>
   </div>
   <div class="grid" id="grid"></div>
 </section>
@@ -621,9 +631,9 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
       <div class="foot-col">
         <h4>Alışveriş</h4>
         <ul>
-          <li><a href="#urunler">Yeni gelenler</a></li>
-          <li><a href="#urunler">Çok satanlar</a></li>
-          <li><a href="#urunler">İndirimdekiler</a></li>
+          <li><a href="#urunler" data-kat="all">Yeni gelenler</a></li>
+          <li><a href="#urunler" data-kat="best">Çok satanlar</a></li>
+          <li><a href="#urunler" data-kat="indirim">İndirimdekiler</a></li>
           <li><a href="beden-rehberi.html">Beden rehberi</a></li>
         </ul>
       </div>
@@ -781,6 +791,7 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
         <span id="urunDemoTag" hidden></span>
         <span class="urun-rozet" id="urunTag"></span>
       </div>
+      <div class="urun-thumbs" id="urunThumbs" hidden></div>
     </div>
     <div class="urun-copy">
       <div class="urun-ust">
@@ -839,8 +850,8 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
   </nav>
   <div class="mob-list">
     <span class="eyebrow">Kategoriler</span>
-    <a href="#urunler">Sütyen</a><a href="#urunler">Külot</a><a href="#urunler">Takım</a>
-    <a href="#urunler">Gecelik</a><a href="#urunler">Bornoz</a><a href="#urunler">Çorap</a>
+    <a href="#urunler" data-kat="Sütyen">Sütyen</a><a href="#urunler" data-kat="Külot">Külot</a><a href="#urunler" data-kat="Takım">Takım</a>
+    <a href="#urunler" data-kat="Gecelik">Gecelik</a><a href="#urunler" data-kat="Bornoz">Bornoz</a><a href="#urunler" data-kat="Çorap">Çorap</a>
   </div>
   <div class="mob-list">
     <span class="eyebrow">Yardım</span>
@@ -932,7 +943,9 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
       fiyat: (u.fiyat !== null && u.fiyat !== '' && isFinite(u.fiyat)) ? Number(u.fiyat) : null,
       eskiFiyat: (u.eski_fiyat !== null && u.eski_fiyat !== undefined && u.eski_fiyat !== '' && isFinite(u.eski_fiyat)) ? Number(u.eski_fiyat) : null,
       art: u.art || 'sutyen',
-      foto: typeof u.foto === 'string' ? u.foto : '',
+      foto: (Array.isArray(u.fotolar) && u.fotolar[0]) ? u.fotolar[0] : (typeof u.foto === 'string' ? u.foto : ''),
+      fotolar: Array.isArray(u.fotolar) && u.fotolar.length ? u.fotolar.filter(function(x){ return typeof x === 'string' && x; })
+             : (typeof u.foto === 'string' && u.foto ? [u.foto] : []),
       aciklama: u.aciklama || '',
       stok: stokDuzelt(u.stok)
     };
@@ -996,9 +1009,11 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
     return '';
   }
   function gorselHTML(p){
-    return p.foto
-      ? '<img src="' + kacis(p.foto) + '" alt="' + kacis(p.ad) + '">'
-      : '<svg class="art" aria-hidden="true"><use href="#art-' + kacis(p.art) + '"/></svg>';
+    if (!p.foto) return '<svg class="art" aria-hidden="true"><use href="#art-' + kacis(p.art) + '"/></svg>';
+    var h = '<img src="' + kacis(p.foto) + '" alt="' + kacis(p.ad) + '">';
+    /* İkinci fotoğraf varsa üzerine gelince o görünür */
+    if (p.fotolar && p.fotolar[1]) h += '<img class="ikinci" src="' + kacis(p.fotolar[1]) + '" alt="" loading="lazy">';
+    return h;
   }
 
   /* Beden düğmeleri — stoğu biten beden pasif */
@@ -1543,8 +1558,23 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
     var p = PRODUCTS[i];
     return value === 'all' ? true
          : value === 'best' ? p.tag === 'Çok satan'
+         : value === 'indirim' ? indirimli(p)
          : p.cat === value;
   }
+
+  /* Kategori satırı, mobil menü ve footer bağlantıları: ilgili çipi tetikler */
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[data-kat]');
+    if (!a) return;
+    e.preventDefault();
+    var kat = a.getAttribute('data-kat');
+    var chip = chips.querySelector('.chip[data-filter="' + kat + '"]');
+    if (!chip) return;
+    if (typeof closeAll === 'function') closeAll();
+    if (kat === 'all'){ kategoriKapat(true); return; }
+    if (chip.getAttribute('aria-pressed') === 'true'){ alanaKaydir(); return; }
+    chip.click();
+  });
 
   /* Sonuç alanı üç şey gösterir: kategori, arama sonucu, favoriler.
      katMode hangisinin açık olduğunu tutar. */
@@ -1581,7 +1611,9 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
     for (var i = 0; i < PRODUCTS.length; i++) if (uyuyor(value, i)) liste.push(i);
     var kaydir = katSec.hidden || katMode !== 'kategori';
     katMode = 'kategori';
-    sonucGoster(liste, 'Seçtiğin kategori', label, 'Bu kategoride şimdilik ürün yok.');
+    var ust = value === 'best' ? 'En çok tercih edilenler' : value === 'indirim' ? 'Fırsatlar' : 'Seçtiğin kategori';
+    var bos = value === 'indirim' ? 'Şu an indirimde ürün yok — bültene katıl, ilk sen haberdar ol.' : 'Bu kategoride şimdilik ürün yok.';
+    sonucGoster(liste, ust, label, bos);
     if (kaydir) alanaKaydir();
   }
 
@@ -1800,6 +1832,13 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
     var uf = document.getElementById('urunFoto');
     uf.hidden = !p.foto;
     if (p.foto) uf.src = p.foto;
+    /* Galeri küçük resimleri (2+ fotoğraf varsa) */
+    var th = document.getElementById('urunThumbs');
+    var fl = p.fotolar || [];
+    th.hidden = fl.length < 2;
+    th.innerHTML = fl.length < 2 ? '' : fl.map(function(url, i){
+      return '<button type="button" data-foto="' + kacis(url) + '" aria-current="' + (i === 0 ? 'true' : 'false') + '" aria-label="Fotoğraf ' + (i + 1) + '"><img src="' + kacis(url) + '" alt=""></button>';
+    }).join('');
     document.getElementById('urunArt').hidden = !!p.foto;
     document.getElementById('urunDemoTag').hidden = !!p.foto;
     urunSizes.innerHTML = sizesHTML(p);
@@ -1841,6 +1880,11 @@ footer{border-top:1px solid var(--line);padding-block:clamp(3rem,6vw,4.5rem) 1.6
   document.getElementById('peekOpen').addEventListener('click', urunAc);
   document.getElementById('peekGo').addEventListener('click', urunAc);
   document.getElementById('urunBack').addEventListener('click', urunKapat);
+  document.getElementById('urunThumbs').addEventListener('click', function(e){
+    var b = e.target.closest('[data-foto]'); if (!b) return;
+    document.getElementById('urunFoto').src = b.getAttribute('data-foto');
+    this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-current', x === b ? 'true' : 'false'); });
+  });
 
   urunSizes.addEventListener('click', function(e){
     var b = e.target.closest('.size');

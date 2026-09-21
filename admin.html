@@ -196,6 +196,21 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 .drop .btn{position:relative;z-index:2;cursor:pointer;}
 .drop .thumb{cursor:pointer;}
 
+.galeri{display:flex;flex-direction:column;gap:.7rem;}
+.galeri-h{display:flex;align-items:center;justify-content:space-between;}
+.galeri-h b{font-weight:500;font-size:.88rem;}
+.galeri-liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:.6rem;}
+.galeri-liste:empty{display:none;}
+.g-foto{position:relative;aspect-ratio:4/5;border-radius:var(--r-s);overflow:hidden;border:1px solid var(--line);background:var(--panel-2);}
+.g-foto img{width:100%;height:100%;object-fit:cover;display:block;}
+.g-foto.kapak{outline:2px solid var(--bordo);outline-offset:1px;}
+.g-foto .kapak-etiket{position:absolute;top:.3rem;left:.3rem;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;background:var(--bordo);color:#fff;padding:.12rem .4rem;border-radius:4px;}
+.g-foto .g-act{position:absolute;inset:auto 0 0 0;display:flex;justify-content:space-between;padding:.25rem;background:linear-gradient(transparent,rgba(29,23,25,.55));opacity:0;transition:opacity .15s;}
+.g-foto:hover .g-act,.g-foto:focus-within .g-act{opacity:1;}
+@media (hover:none){.g-foto .g-act{opacity:1;}}
+.g-act button{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.92);color:var(--ink);font-size:.8rem;line-height:1;display:grid;place-items:center;}
+.g-act button:hover{background:#fff;color:var(--bordo);}
+.g-act button[disabled]{opacity:.35;cursor:default;}
 .sizes{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;}
 .size{display:flex;flex-direction:column;gap:.25rem;}
 .size span{font-size:.7rem;font-weight:500;color:var(--mute);text-align:center;letter-spacing:.06em;}
@@ -414,17 +429,17 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 <aside class="drawer" id="urunDrawer" aria-label="Ürün düzenle">
   <div class="dr-h"><h2 id="drBaslik">Ürün</h2><button class="btn btn-ghost btn-icon" id="drKapat" aria-label="Kapat"><svg><use href="#i-x"/></svg></button></div>
   <div class="dr-b">
-    <div class="drop" id="drop">
-      <div class="thumb" id="drThumb"></div>
-      <div class="drop-t">
-        <b>Ürün fotoğrafı</b>
-        <p>Bilgisayarından ya da telefonundan seç; sürükleyip bırakabilirsin de. 900px'e küçültülüp yüklenir.</p>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <label class="btn btn-primary btn-sm" for="drFoto"><svg><use href="#i-up"/></svg>Ürün fotoğrafı yükle</label>
-          <button class="btn btn-ghost btn-sm" type="button" id="drFotoSil" hidden>Kaldır</button>
+    <div class="galeri">
+      <div class="galeri-h"><b>Ürün fotoğrafları</b><span id="galeriSayi" class="pill">0 foto</span></div>
+      <div class="galeri-liste" id="galeriListe"></div>
+      <div class="drop" id="drop">
+        <div class="thumb" id="drThumb"></div>
+        <div class="drop-t">
+          <p>İlk fotoğraf kapak olur; sitede kartta görünür. Birden fazla seçebilirsin, sürükleyip bırakabilirsin. 900px'e küçültülüp yüklenir.</p>
+          <label class="btn btn-primary btn-sm" for="drFoto"><svg><use href="#i-up"/></svg>Fotoğraf ekle</label>
         </div>
+        <input type="file" accept="image/*" multiple id="drFoto" aria-label="Fotoğraf ekle">
       </div>
-      <input type="file" accept="image/*" id="drFoto" aria-label="Ürün fotoğrafı yükle">
     </div>
     <label class="yayin" id="yayinKutu">
       <input type="checkbox" id="fAktif" data-f="aktif">
@@ -541,13 +556,17 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
   function duzelt(u){
     var s = bosStok();
     if (u && u.stok) BEDENLER.forEach(function(b){ s[b] = Math.max(0, parseInt(u.stok[b], 10) || 0); });
+    /* Galeri: fotolar dizisi; boşsa eski tekil foto alanından kurulur */
+    var fotolar = (u && Array.isArray(u.fotolar)) ? u.fotolar.filter(function(x){ return typeof x === 'string' && x; }) : [];
+    if (!fotolar.length && u && typeof u.foto === 'string' && u.foto) fotolar = [u.foto];
     return {
       id: (u && u.id) || yeniId(), ad: (u && u.ad) || '',
       cat: (u && KATEGORILER.indexOf(u.cat) > -1) ? u.cat : KATEGORILER[0],
       tag: (u && ROZETLER.indexOf(u.tag) > -1) ? u.tag : '',
       fiyat: (u && u.fiyat !== null && u.fiyat !== '' && isFinite(u.fiyat)) ? Number(u.fiyat) : null,
       art: (u && CIZIMLER.indexOf(u.art) > -1) ? u.art : CIZIMLER[0],
-      foto: (u && typeof u.foto === 'string') ? u.foto : '',
+      foto: fotolar[0] || '',
+      fotolar: fotolar,
       aciklama: (u && u.aciklama) || '', stok: s,
       sira: (u && isFinite(u.sira)) ? Number(u.sira) : 0,
       eskiFiyat: (u && u.eski_fiyat !== null && u.eski_fiyat !== undefined && u.eski_fiyat !== '' && isFinite(u.eski_fiyat)) ? Number(u.eski_fiyat)
@@ -556,7 +575,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     };
   }
   function satirYap(u){
-    return { id:u.id, ad:u.ad, cat:u.cat, tag:u.tag, fiyat:u.fiyat, eski_fiyat:u.eskiFiyat, art:u.art, foto:u.foto,
+    return { id:u.id, ad:u.ad, cat:u.cat, tag:u.tag, fiyat:u.fiyat, eski_fiyat:u.eskiFiyat, art:u.art,
+             foto:(u.fotolar && u.fotolar[0]) || '', fotolar:u.fotolar || [],
              aciklama:u.aciklama, stok:u.stok, sira:u.sira || 0, aktif:u.aktif !== false, updated_at:new Date().toISOString() };
   }
   function hataMetni(err){
@@ -712,7 +732,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
 
   /* ── Ürün listesi ───────────────────────────────────────────── */
   function thumbHTML(u){
-    return '<span class="thumb">' + (u.foto ? '<img src="' + kacis(u.foto) + '" alt="">' : '<svg><use href="#art-' + u.art + '"/></svg>') + '</span>';
+    var kapak = (u.fotolar && u.fotolar[0]) || u.foto;
+    return '<span class="thumb">' + (kapak ? '<img src="' + kacis(kapak) + '" alt="">' : '<svg><use href="#art-' + u.art + '"/></svg>') + '</span>';
   }
   function stokHTML(u){
     return '<span class="stoks">' + BEDENLER.map(function(b){
@@ -793,9 +814,41 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     $('fTag').value = u.tag; $('fAcik').value = u.aciklama; $('fArt').value = u.art;
     BEDENLER.forEach(function(b){ var i = drawer.querySelector('[data-stok="' + b + '"]'); i.value = u.stok[b]; i.classList.toggle('z', u.stok[b] === 0); });
     $('drToplam').textContent = toplamStok(u) + ' adet';
-    $('drThumb').innerHTML = u.foto ? '<img src="' + kacis(u.foto) + '" alt="">' : '<svg><use href="#art-' + u.art + '"/></svg>';
-    $('drFotoSil').hidden = !u.foto;
+    galeriCiz(u);
   }
+
+  function galeriCiz(u){
+    var f = u.fotolar || [];
+    u.foto = f[0] || '';
+    $('galeriSayi').textContent = f.length + ' foto';
+    $('drThumb').innerHTML = '<svg><use href="#art-' + u.art + '"/></svg>';
+    $('galeriListe').innerHTML = f.map(function(url, i){
+      return '<div class="g-foto' + (i === 0 ? ' kapak' : '') + '" data-gi="' + i + '">' +
+        '<img src="' + kacis(url) + '" alt="">' +
+        (i === 0 ? '<span class="kapak-etiket">Kapak</span>' : '') +
+        '<div class="g-act">' +
+          '<button type="button" data-gsol aria-label="Öne al"' + (i === 0 ? ' disabled' : '') + '>‹</button>' +
+          '<button type="button" data-gsil aria-label="Kaldır">×</button>' +
+          '<button type="button" data-gsag aria-label="Geriye al"' + (i === f.length - 1 ? ' disabled' : '') + '>›</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  $('galeriListe').addEventListener('click', function(e){
+    if (!aktif) return;
+    var kutu = e.target.closest('[data-gi]'); if (!kutu) return;
+    var i = Number(kutu.getAttribute('data-gi')), f = aktif.fotolar;
+    if (e.target.closest('[data-gsil]')){
+      var url = f[i]; f.splice(i, 1);
+      kaydet(aktif).then(function(){ galeriCiz(aktif); return fotoSil(url); });
+      return;
+    }
+    var yon = e.target.closest('[data-gsol]') ? -1 : (e.target.closest('[data-gsag]') ? 1 : 0);
+    if (!yon) return;
+    var j = i + yon; if (j < 0 || j >= f.length) return;
+    var t = f[i]; f[i] = f[j]; f[j] = t;
+    galeriCiz(aktif); kaydet(aktif);
+  });
   function urunAc(id){
     var u = bul(id); if (!u) return;
     aktif = u; drDoldur(u); drDurum('');
@@ -821,7 +874,7 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
       else if (f === 'aktif') aktif.aktif = e.target.checked;
       else aktif[f] = e.target.value;
       if (f === 'ad') $('drBaslik').textContent = aktif.ad || 'Yeni ürün';
-      if (f === 'art' && !aktif.foto) $('drThumb').innerHTML = '<svg><use href="#art-' + aktif.art + '"/></svg>';
+      if (f === 'art') $('drThumb').innerHTML = '<svg><use href="#art-' + aktif.art + '"/></svg>';
       gecKaydet(aktif);
     } else if (b){
       var v = Math.max(0, parseInt(e.target.value, 10) || 0);
@@ -831,48 +884,61 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     }
   });
 
-  function fotoYukle(dosya){
-    if (!aktif || !dosya || !/^image\//.test(dosya.type)){ toast('Bir görsel dosyası seç', true); return; }
-    var u = aktif; drDurum('Fotoğraf yükleniyor…');
-    var okuyucu = new FileReader();
-    okuyucu.onload = function(){
-      var img = new Image();
-      img.onload = function(){
-        var max = 900, w = img.width, h = img.height;
-        if (w > h && w > max){ h = Math.round(h * max / w); w = max; } else if (h >= w && h > max){ w = Math.round(w * max / h); h = max; }
-        var c = document.createElement('canvas'); c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        c.toBlob(function(blob){
-          var yol = u.id + '-' + Date.now() + '.jpg';
-          sb.storage.from(BUCKET).upload(yol, blob, { contentType:'image/jpeg', upsert:true }).then(function(r){
-            if (r.error){ drDurum('Yüklenemedi: ' + hataMetni(r.error), 'err'); return; }
-            var eski = u.foto;
-            u.foto = sb.storage.from(BUCKET).getPublicUrl(yol).data.publicUrl;
-            kaydet(u).then(function(){ if (aktif === u) drDoldur(u); toast('Fotoğraf yüklendi'); return fotoSil(eski); });
-          });
-        }, 'image/jpeg', 0.82);
+  /* Bir dosyayı küçültüp Storage'a yükler, URL döner */
+  function fotoYukleTek(u, dosya, sira){
+    return new Promise(function(res, rej){
+      var okuyucu = new FileReader();
+      okuyucu.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var max = 900, w = img.width, h = img.height;
+          if (w > h && w > max){ h = Math.round(h * max / w); w = max; } else if (h >= w && h > max){ w = Math.round(w * max / h); h = max; }
+          var c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          c.toBlob(function(blob){
+            var yol = u.id + '-' + Date.now() + '-' + sira + '.jpg';
+            sb.storage.from(BUCKET).upload(yol, blob, { contentType:'image/jpeg', upsert:true }).then(function(r){
+              if (r.error) rej(r.error); else res(sb.storage.from(BUCKET).getPublicUrl(yol).data.publicUrl);
+            });
+          }, 'image/jpeg', 0.82);
+        };
+        img.onerror = function(){ rej(new Error('Görsel okunamadı')); };
+        img.src = okuyucu.result;
       };
-      img.onerror = function(){ drDurum('Görsel okunamadı', 'err'); };
-      img.src = okuyucu.result;
-    };
-    okuyucu.readAsDataURL(dosya);
+      okuyucu.readAsDataURL(dosya);
+    });
   }
-  $('drFoto').addEventListener('change', function(){ fotoYukle(this.files && this.files[0]); this.value = ''; });
+
+  function fotolariYukle(dosyalar){
+    if (!aktif) return;
+    var liste = Array.prototype.filter.call(dosyalar || [], function(d){ return /^image\//.test(d.type); });
+    if (!liste.length){ toast('Bir görsel dosyası seç', true); return; }
+    var u = aktif, n = 0;
+    drDurum('Fotoğraf yükleniyor… (0/' + liste.length + ')');
+    var zincir = Promise.resolve();
+    liste.forEach(function(d, i){
+      zincir = zincir.then(function(){
+        return fotoYukleTek(u, d, i).then(function(url){
+          u.fotolar.push(url); n++;
+          drDurum('Fotoğraf yükleniyor… (' + n + '/' + liste.length + ')');
+          if (aktif === u) galeriCiz(u);
+        });
+      });
+    });
+    zincir.then(function(){ return kaydet(u); }).then(function(){ toast(n + ' fotoğraf yüklendi'); })
+      .catch(function(err){ drDurum('Yüklenemedi: ' + hataMetni(err), 'err'); kaydet(u); });
+  }
+  $('drFoto').addEventListener('change', function(){ fotolariYukle(this.files); this.value = ''; });
   var drop = $('drop');
   ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('over'); }); });
   ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
-  drop.addEventListener('drop', function(e){ fotoYukle(e.dataTransfer.files && e.dataTransfer.files[0]); });
-  $('drFotoSil').addEventListener('click', function(){
-    if (!aktif) return;
-    var eski = aktif.foto; aktif.foto = '';
-    kaydet(aktif).then(function(){ drDoldur(aktif); return fotoSil(eski); });
-  });
+  drop.addEventListener('drop', function(e){ fotolariYukle(e.dataTransfer.files); });
   $('drSil').addEventListener('click', function(){
     if (!aktif) return;
     var u = aktif;
     onayla('Ürün silinecek', '"' + (u.ad || 'Adsız ürün') + '" kalıcı olarak silinecek ve siteden kaybolacak. Bu işlem geri alınamaz.', 'Evet, sil').then(function(ok){
       if (!ok) return;
-      fotoSil(u.foto).then(function(){ return sb.from('urunler').delete().eq('id', u.id); }).then(function(r){
+      Promise.all((u.fotolar || []).map(fotoSil)).then(function(){ return sb.from('urunler').delete().eq('id', u.id); }).then(function(r){
         if (r && r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
         urunler = urunler.filter(function(x){ return x.id !== u.id; });
         aktif = null; clearTimeout(kayitZaman); panelKapat(); urunleriCiz(); toast('Ürün silindi');
@@ -931,7 +997,8 @@ main{min-width:0;padding:1.6rem clamp(1rem,3vw,2.4rem) 4rem;}
     if (!urunler.length){ toast('Silinecek ürün yok'); return; }
     onayla('Tüm ürünler silinecek', urunler.length + ' ürün ve fotoğrafları kalıcı olarak silinecek, site boş kalacak. Bu işlem geri alınamaz — önce "Dışa aktar" ile yedek almanı öneririm.', 'Hepsini sil').then(function(ok){
       if (!ok) return;
-      Promise.all(urunler.map(function(u){ return fotoSil(u.foto); })).then(function(){ return sb.from('urunler').delete().neq('id', ''); }).then(function(r){
+      var tumFotolar = []; urunler.forEach(function(u){ (u.fotolar || []).forEach(function(f){ tumFotolar.push(f); }); });
+      Promise.all(tumFotolar.map(fotoSil)).then(function(){ return sb.from('urunler').delete().neq('id', ''); }).then(function(r){
         if (r.error){ toast('Silinemedi: ' + hataMetni(r.error), true); return; }
         urunler = []; urunleriCiz(); toast('Tüm ürünler silindi');
       });
