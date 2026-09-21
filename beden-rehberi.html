@@ -107,7 +107,14 @@ tbody tr.secili th{color:var(--accent);}
 
 /* Nasıl ölçülür */
 .olcum{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.olcum-4{grid-template-columns:repeat(4,1fr);}
+@media (max-width:900px){.olcum-4{grid-template-columns:1fr 1fr;}}
 @media (max-width:760px){.olcum{grid-template-columns:1fr;}}
+.tablo-ikili{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2.4rem;}
+@media (max-width:700px){.tablo-ikili{grid-template-columns:1fr;}}
+.tablo-baslik{font-family:'Jost',sans-serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);font-weight:500;margin:0 0 .7rem;}
+.tablo-ikili table{min-width:0;}
+.sec-h p b{font-weight:500;color:var(--ink);}
 .olcum-kart{border:1px solid var(--line);border-radius:10px;padding:1.2rem;background:var(--surface);}
 .olcum-kart b{display:block;font-family:'Bodoni Moda',serif;font-size:var(--step-1);font-weight:400;margin-bottom:.4rem;}
 .olcum-kart p{color:var(--ink-mute);font-size:var(--step--1);}
@@ -223,12 +230,75 @@ footer{border-top:1px solid var(--line);background:var(--ground-2);padding-block
     </p>
   </section>
 
+  <section id="sutyen">
+    <div class="sec-h">
+      <span class="eyebrow">Sütyen bedeni</span>
+      <h2>Altgöğüs ve göğüs ölçünle sütyen bedenini bul</h2>
+      <p>Sütyen bedeni iki sayıdan oluşur: altgöğüs çevresi <b>beden numarasını</b> (70, 75, 80…), göğüs ile altgöğüs arasındaki fark <b>kap harfini</b> (A, B, C…) verir.</p>
+    </div>
+
+    <div class="hesap">
+      <form class="form-blok" id="sutyenForm">
+        <div class="form-satir">
+          <div class="alan">
+            <label for="altgogus">Altgöğüs (cm)</label>
+            <input type="number" id="altgogus" min="55" max="120" step="1" placeholder="75" inputmode="numeric">
+          </div>
+          <div class="alan">
+            <label for="gogus">Göğüs (cm)</label>
+            <input type="number" id="gogus" min="65" max="150" step="1" placeholder="91" inputmode="numeric">
+          </div>
+        </div>
+        <div class="hesap-act">
+          <button class="btn btn-primary" type="submit">Sütyen bedenimi bul</button>
+          <button class="btn btn-ghost" type="reset" id="sutyenTemizle">Temizle</button>
+        </div>
+      </form>
+
+      <aside class="sonuc bos" id="sutyenSonuc" aria-live="polite">
+        <span class="eyebrow">Sütyen bedenin</span>
+        <div class="sonuc-beden" id="sutyenBeden">—</div>
+        <div class="sonuc-alt" id="sutyenAlt">Altgöğüs ve göğüs ölçünü gir.</div>
+        <div class="sonuc-not" id="sutyenNot">
+          Kardeş bedenler: bir beden küçük numarada bir büyük kap (70D), bir beden büyük numarada bir küçük kap (80B) aynı hacmi verir. Mağazada senin bedenin yoksa bunları dene.
+        </div>
+      </aside>
+    </div>
+
+    <div class="tablo-ikili">
+      <div>
+        <h3 class="tablo-baslik">Beden numarası — altgöğüs</h3>
+        <div class="tablo-kutu">
+          <table>
+            <thead><tr><th scope="col">Altgöğüs (cm)</th><th scope="col">Beden</th></tr></thead>
+            <tbody id="bantBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3 class="tablo-baslik">Kap — göğüs ile altgöğüs farkı</h3>
+        <div class="tablo-kutu">
+          <table>
+            <thead><tr><th scope="col">Fark (cm)</th><th scope="col">Kap</th></tr></thead>
+            <tbody id="kapBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="uyari">
+      <b>Örnek:</b> Altgöğüs 76 cm, göğüs 91 cm → beden 75, fark 15 cm → kap B → <b>75B</b>.
+      Bu tablo Avrupa (EU) ölçü standardına göredir; markadan markaya 1 kap fark olabilir. İki değerin arasındaysan sütyende
+      küçük numara / büyük kap tarafını dene.
+    </p>
+  </section>
+
   <section>
     <div class="sec-h">
       <span class="eyebrow">Nasıl ölçülür</span>
       <h2>Mezurayı doğru tut</h2>
     </div>
-    <div class="olcum">
+    <div class="olcum olcum-4">
       <div class="olcum-kart">
         <span>1</span>
         <b>Bel</b>
@@ -241,8 +311,13 @@ footer{border-top:1px solid var(--line);background:var(--ground-2);padding-block
       </div>
       <div class="olcum-kart">
         <span>3</span>
+        <b>Altgöğüs</b>
+        <p>Göğsün hemen altından, kaburgaların üzerinden ölç. Mezura sıkı ama nefes alabileceğin kadar rahat olsun; nefes verirken oku.</p>
+      </div>
+      <div class="olcum-kart">
+        <span>4</span>
         <b>Göğüs</b>
-        <p>Sütyen takılıyken göğsün en dolgun yerinden ölç. Nefesini tutma, normal dur.</p>
+        <p>Dolgusuz bir sütyenle göğsün en dolgun yerinden, mezura yere paralel dururken ölç. Sıkma, normal nefes al.</p>
       </div>
     </div>
   </section>
@@ -378,6 +453,73 @@ footer{border-top:1px solid var(--line);background:var(--ground-2);padding-block
     }
     yaz(sira, 'Boy-kilo tahmini (VKİ ' + vki.toFixed(1) + '). Kesin sonuç için bel ve basen ölçünü gir.', yakin);
   });
+
+  /* ── Sütyen bedeni (EU standardı) ─────────────────────────────── */
+  var BANT = [   /* altgöğüs aralığı → beden numarası */
+    { min:63, max:67, no:65 }, { min:68, max:72, no:70 }, { min:73, max:77, no:75 }, { min:78, max:82, no:80 },
+    { min:83, max:87, no:85 }, { min:88, max:92, no:90 }, { min:93, max:97, no:95 }, { min:98, max:102, no:100 }
+  ];
+  var KAP = [    /* göğüs − altgöğüs farkı → kap */
+    { min:10, max:12, kap:'AA' }, { min:12, max:14, kap:'A' }, { min:14, max:16, kap:'B' }, { min:16, max:18, kap:'C' },
+    { min:18, max:20, kap:'D' }, { min:20, max:22, kap:'E' }, { min:22, max:24, kap:'F' }, { min:24, max:26, kap:'G' }
+  ];
+
+  document.getElementById('bantBody').innerHTML = BANT.map(function(b){
+    return '<tr><td>' + b.min + '–' + b.max + '</td><th scope="row">' + b.no + '</th></tr>';
+  }).join('');
+  document.getElementById('kapBody').innerHTML = KAP.map(function(k){
+    return '<tr><td>' + k.min + '–' + k.max + '</td><th scope="row">' + k.kap + '</th></tr>';
+  }).join('');
+
+  function bantBul(alt){
+    if (alt < BANT[0].min) return BANT[0];
+    for (var i = 0; i < BANT.length; i++) if (alt <= BANT[i].max) return BANT[i];
+    return BANT[BANT.length - 1];
+  }
+  function kapBul(fark){
+    if (fark < KAP[0].min) return null;
+    for (var i = 0; i < KAP.length; i++) if (fark <= KAP[i].max) return KAP[i];
+    return KAP[KAP.length - 1];
+  }
+
+  var sSonuc = document.getElementById('sutyenSonuc');
+  var sBeden = document.getElementById('sutyenBeden');
+  var sAlt = document.getElementById('sutyenAlt');
+  var sNot = document.getElementById('sutyenNot');
+
+  function sutyenSifirla(mesaj){
+    sSonuc.classList.add('bos');
+    sBeden.textContent = '—';
+    sAlt.textContent = mesaj || 'Altgöğüs ve göğüs ölçünü gir.';
+    sNot.textContent = 'Kardeş bedenler: bir beden küçük numarada bir büyük kap, bir beden büyük numarada bir küçük kap aynı hacmi verir.';
+  }
+
+  document.getElementById('sutyenForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var alt = parseFloat(document.getElementById('altgogus').value);
+    var gog = parseFloat(document.getElementById('gogus').value);
+    if (!isFinite(alt) || alt < 55 || alt > 120 || !isFinite(gog) || gog < 65 || gog > 150){
+      sutyenSifirla('İki ölçüyü de santimetre olarak gir.'); return;
+    }
+    var fark = gog - alt;
+    if (fark < 8){ sutyenSifirla('Göğüs ölçün altgöğüsten en az 8-10 cm büyük olmalı; ölçümü kontrol et.'); return; }
+    var bant = bantBul(alt);
+    var kap = kapBul(fark);
+    if (!kap){ sutyenSifirla('Fark ' + fark + ' cm — tablonun altında; AA ya da bir altgöğüs küçük beden dene.'); return; }
+
+    var bi = BANT.indexOf(bant), ki = KAP.indexOf(kap);
+    var kardes = [];
+    if (bi > 0 && ki < KAP.length - 1) kardes.push(BANT[bi - 1].no + KAP[ki + 1].kap);
+    if (bi < BANT.length - 1 && ki > 0) kardes.push(BANT[bi + 1].no + KAP[ki - 1].kap);
+
+    sSonuc.classList.remove('bos');
+    sBeden.textContent = bant.no + kap.kap;
+    sAlt.textContent = 'Altgöğüs ' + alt + ' cm → beden ' + bant.no + ' · fark ' + fark + ' cm → kap ' + kap.kap;
+    sNot.innerHTML = (kardes.length ? 'Kardeş bedenler: <b>' + kardes.join('</b> ve <b>') + '</b>. Bedenin yoksa bunları dene.<br>' : '') +
+      (fark % 2 === 0 ? 'Farkın tam sınırda — iki kap arasında kaldıysan önce büyük olanı dene.' : 'Markadan markaya 1 kap fark olabilir.');
+  });
+
+  document.getElementById('sutyenTemizle').addEventListener('click', function(){ setTimeout(function(){ sutyenSifirla(); }, 0); });
 
   document.getElementById('temizle').addEventListener('click', function(){
     setTimeout(function(){
